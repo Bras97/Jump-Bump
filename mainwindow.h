@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -14,12 +15,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+public slots:
+    void ruch();
+
 
 private:
     Ui::MainWindow *ui;
+    QTimer *timer;
 
-public:
-    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // MAINWINDOW_H
