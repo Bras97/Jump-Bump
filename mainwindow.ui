@@ -219,8 +219,8 @@ color: rgb(85, 170, 0);</string>
        <widget class="QLabel" name="player_1">
         <property name="geometry">
          <rect>
-          <x>300</x>
-          <y>420</y>
+          <x>530</x>
+          <y>130</y>
           <width>51</width>
           <height>41</height>
          </rect>
@@ -253,31 +253,12 @@ color: rgb(85, 170, 0);</string>
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>560</x>
-          <y>460</y>
-          <width>191</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/grass_block.jpg</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="block_1">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>460</y>
-          <width>171</width>
+          <width>751</width>
           <height>41</height>
          </rect>
         </property>
@@ -285,56 +266,34 @@ color: rgb(85, 170, 0);</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/grass_block.jpg</pixmap>
+         <pixmap resource="img/images.qrc">:/new/prefix1/grass_main.jpg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QLabel" name="label_4">
-        <property name="geometry">
-         <rect>
-          <x>170</x>
-          <y>460</y>
-          <width>191</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/grass_block.jpg</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_5">
-        <property name="geometry">
-         <rect>
-          <x>360</x>
-          <y>460</y>
-          <width>201</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/grass_block.jpg</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QLabel" name="block_1">
+       <widget class="QLabel" name="block_3">
         <property name="geometry">
          <rect>
           <x>520</x>
           <y>430</y>
-          <width>51</width>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-image: url(:/new/prefix1/grass_block.jpg);</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="block_2">
+        <property name="geometry">
+         <rect>
+          <x>410</x>
+          <y>300</y>
+          <width>31</width>
           <height>31</height>
          </rect>
         </property>

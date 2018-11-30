@@ -20,6 +20,7 @@ public:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
     void detekcja(QLabel *blok);
+    bool kolizja(int poz0, int poz1,int poz2,int poz3);
 public slots:
     void ruch();
 
