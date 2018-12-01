@@ -14,19 +14,10 @@ int pola_zabronione[1][4];
 int poz[4];
 int PREDKOSC = 5;
 int wgore,wdol;
-int ILE_BLOKOW=3;
-QLabel *bloki[3];
+int ILE_BLOKOW=17;
+QLabel *bloki[17];
 int ktory=0;
 bool spada=true;
-
-void MainWindow::detekcja(QLabel *blok)
-{
-    pola_zabronione[0][0] = blok->x();                  //lewa
-    pola_zabronione[0][1] = blok->x() + blok->width();  //prawa
-    pola_zabronione[0][2] = blok->y();                  //góra
-    pola_zabronione[0][3] = blok->y() + blok->height(); //dół
-
-}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,16 +27,27 @@ MainWindow::MainWindow(QWidget *parent) :
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
-    detekcja(ui->block_1);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
     bloki[2] = ui->block_3;
+    bloki[3] = ui->block_4;
+    bloki[4] = ui->block_5;
+    bloki[5] = ui->block_6;
+    bloki[6] = ui->block_7;
+    bloki[7] = ui->block_8;
+    bloki[8] = ui->block_9;
+    bloki[9] = ui->block_10;
+    bloki[10] = ui->block_11;
+    bloki[11] = ui->block_12;
+    bloki[12] = ui->block_13;
+    bloki[13] = ui->block_14;
+    bloki[14] = ui->block_15;
+    bloki[15] = ui->block_16;
+    bloki[16] = ui->block_17;
     for(int i=0; i<3; i++)
         polecenie[i]=false;
     polecenie[3]=true; //spadaj caly czas jak nie masz gruntu
-    for(int i=0; i<4; i++)
-        cout << pola_zabronione[0][i] << endl;
 }
 
 MainWindow::~MainWindow()
@@ -81,7 +83,7 @@ void MainWindow::ruch()
     {
         if(!(poz[0]-PREDKOSC <= 0))
         {
-            if(!kolizja(poz[0]-PREDKOSC, poz[1]-PREDKOSC, poz[2], poz[3]))
+            if(!kolizja(poz[0]-PREDKOSC-1, poz[1]-PREDKOSC-1, poz[2], poz[3]))
             {
                 if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_l1.png);")
                     ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_l2.png);");
@@ -97,7 +99,7 @@ void MainWindow::ruch()
     {
         if(!(poz[1]+PREDKOSC >= ui->background->width()))
         {
-            if(!kolizja(poz[0]+PREDKOSC, poz[1]+PREDKOSC, poz[2], poz[3]))
+            if(!kolizja(poz[0]+PREDKOSC+1, poz[1]+PREDKOSC+1, poz[2], poz[3]))
             {
                 if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_r1.png);")
                     ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r2.png);");
@@ -131,14 +133,16 @@ void MainWindow::ruch()
     //spadanie
     if(polecenie[3]==true)
     {
-        if(kolizja(poz[0], poz[1], poz[2]+5, poz[3]+5))
+        skok++;
+        if(kolizja(poz[0], poz[1], poz[2]+skok, poz[3]+skok))
         {
            ui->player_1->setGeometry(ui->player_1->x(),(bloki[ktory]->y() - ui->player_1->height() -1), ui->player_1->width(),ui->player_1->height());
            spada=false;
+           skok=0;
         }
         else
         {
-            ui->player_1->setGeometry(ui->player_1->x(),ui->player_1->y()+5,ui->player_1->width(),ui->player_1->height());
+            ui->player_1->setGeometry(ui->player_1->x(),ui->player_1->y()+skok,ui->player_1->width(),ui->player_1->height());
             spada=true;
         }
     }
