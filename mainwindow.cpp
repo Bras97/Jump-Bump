@@ -28,6 +28,7 @@ bool zbity2=false, zbity=false;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    tcpSocket(new QTcpSocket(this)),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -35,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
+
+    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::writeData);
+    tcpSocket->connectToHost("127.0.0.1", 1234);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -360,5 +364,13 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     if(event->key() == Qt::Key_D)
     {
         polecenie[5]=false;
+    }
+}
+
+
+void MainWindow::writeData()
+{
+    while(true) {
+        tcpSocket->write("tu beda dane\n");
     }
 }
