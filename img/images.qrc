@@ -16,6 +16,10 @@
         <file>liscie.jpg</file>
         <file>chmura.jpg</file>
         <file>liscie2.jpg</file>
+        <file>rabbit1_icon_l2.png</file>
+        <file>rabbit1_icon_r2.png</file>
+        <file>rabbit1_icon_l1.png</file>
+        <file>rabbit1_icon_r1.png</file>
     </qresource>
     <qresource prefix="/">
         <file>rabbit2_icon_r1.png</file>
