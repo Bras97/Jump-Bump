@@ -1,9 +1,9 @@
-#Jump-Bumb
+#Jump-Bump
 
 ## Autorzy
 	* Monika
 	* Adam
 	
-## Za³o¿enia
+## ZaÅ‚oÅ¼enia
 	* Fajna giera
-	* ma dzia³aæ
+	* ma dziaÅ‚aÄ‡
