@@ -25,7 +25,8 @@ public:
     bool zderzenie(int poz0, int poz1,int poz2,int poz3, int pozd0, int pozd1,int pozd2,int pozd3);
 public slots:
     void ruch();
-    void writeData();
+    void write();
+    void readData();
 //    void displayError(QAbstractSocket::SocketError socketError);
 
 

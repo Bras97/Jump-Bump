@@ -16,17 +16,18 @@
 #include <pthread.h>
 //#include <qsocket.h>
 
-#define SERVER_PORT 1235
+#define SERVER_PORT 1234
 #define QUEUE_SIZE 5
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_create = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_wait = PTHREAD_MUTEX_INITIALIZER;
 
 
 //struktura zawierająca dane, które zostaną przekazane do wątku
 struct thread_data_t
 {
 //TODO
-    char buf[100];
+    char buf[10];
     int fd;
     int fd_player2;
 };
@@ -34,21 +35,23 @@ struct thread_data_t
 //funkcja opisującą zachowanie wątku - musi przyjmować argument typu (void *) i zwracać (void *)
 void *ThreadBehavior(void *t_data)
 {
+    printf("%d, %d\n", ((struct thread_data_t*)(t_data))->fd,
+           ((struct thread_data_t*)(t_data))->fd_player2);
 
     pthread_detach(pthread_self());
     struct thread_data_t th_data = *(struct thread_data_t*)t_data;
-    pthread_mutex_unlock(&mutex);
-    //printf("%d, %d\n", (th_data).fd, (th_data).fd_player2);
-    //dostęp do pól struktury: (*th_data).pole
-    //TODO (przy zadaniu 1) klawiatura -> wysyłanie albo odbieranie -> wyświetlanie
+    printf("%d, %d\n", (th_data).fd, (th_data).fd_player2);
+    printf("%d, %d\n", ((struct thread_data_t*)(t_data))->fd,
+           ((struct thread_data_t*)(t_data))->fd_player2);
+
+    pthread_mutex_unlock(&mutex_create);
 
 
     while(1) {
-        //read((th_data).fd, (th_data).buf, 100);
-        //printf("%d, %s\n", (th_data).fd, (th_data).buf);
-        //write((th_data).fd_player2, (th_data).buf, 100);
-        char  a = 'a';
-        write((th_data).fd_player2, &a, 10);
+        memset((th_data).buf, 0, 10);
+        read((th_data).fd, (th_data).buf, 10);
+        write((th_data).fd_player2, (th_data).buf, 10);
+
     }
 
     pthread_exit(NULL);
@@ -56,21 +59,23 @@ void *ThreadBehavior(void *t_data)
 
 //funkcja obsługująca połączenie z nowym klientem
 void handleConnection(int connection_socket_descriptor, int player2_socket_descriptor) {
-    //printf("%d, %d\n", connection_socket_descriptor, player2_socket_descriptor);
+
     //wynik funkcji tworzącej wątek
     int create_result = 0;
+
+
+    pthread_mutex_lock(&mutex_create);
 
     //uchwyt na wątek
     pthread_t thread1;
 
     //dane, które zostaną przekazane do wątku
-    //TODO dynamiczne utworzenie instancji struktury thread_data_t o nazwie t_data (+ w odpowiednim miejscu zwolnienie pamięci)
-    //TODO wypełnienie pól struktury
-
-    pthread_mutex_lock(&mutex);
     struct thread_data_t t_data;
     t_data.fd = connection_socket_descriptor;
     t_data.fd_player2 = player2_socket_descriptor;
+
+    printf("%d, %d\n", connection_socket_descriptor, player2_socket_descriptor);
+    printf("%d, %d\n", t_data.fd, t_data.fd_player2);
 
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void *)&t_data);
 

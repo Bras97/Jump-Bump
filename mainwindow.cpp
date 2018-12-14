@@ -25,9 +25,9 @@ int respawn[8][2];
 string w="",w2="";
 bool zbity2=false, zbity=false;
 //string host = "127.0.0.1";
-int port = 1235;
+int port = 1234;
 
-static inline QByteArray IntToArray(qint32 source);
+static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -313,12 +313,13 @@ void MainWindow::ruch()
         }
         else zbity2=false;
     }
+
+    write();
 }
 
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-
     if(event->key() == Qt::Key_Left)
     {
         polecenie[0]=true;
@@ -375,31 +376,39 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
 
 
-bool MainWindow::write()
+void MainWindow::write()
 {
     if(tcpSocket->state() == QAbstractSocket::ConnectedState)
         {
-            char c = 'c';
-            char *wsk_c = &c;
-            tcpSocket->write(wsk_c);
-            return tcpSocket->waitForBytesWritten();
+            char * dane = IntToChar(poz[0], poz[2]);
+
+            //qInfo() << poz[0] << ':' << poz[2] << ' ' << dane;
+            tcpSocket->write(dane);
+            delete[] dane;
         }
-    else
-       return false;
+//    else
+//       return false;
 }
+
+
 
 void MainWindow::readData()
 {
-     QByteArray temp = tcpSocket->read(100);
-     qInfo() << temp.at(0);
+     QByteArray temp = tcpSocket->read(10);
+     QList<QByteArray> qlist = temp.split(';');
+
+     int poz_x = qlist[0].toInt();
+     int poz_y = qlist[1].toInt();
+
+     //qInfo() << poz_x << " " << poz_y;
 }
 
 
-QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
+char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the number have 4 bytes
 {
-    //Avoid use of cast, this is the Qt way to serialize objects
-    QByteArray temp;
-    QDataStream data(&temp, QIODevice::ReadWrite);
-    data << source;
-    return temp;
+    string temp = to_string(poz_x) + ';' + to_string(poz_y);
+    char * wspolrzedne = new char[temp.size() + 1];
+    copy(temp.begin(), temp.end(), wspolrzedne);
+    wspolrzedne[temp.size()] = '\0';
+    return wspolrzedne;
 }
