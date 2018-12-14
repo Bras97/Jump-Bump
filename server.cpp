@@ -14,9 +14,9 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+//#include <qsocket.h>
 
-
-#define SERVER_PORT 1234
+#define SERVER_PORT 1235
 #define QUEUE_SIZE 5
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -44,9 +44,11 @@ void *ThreadBehavior(void *t_data)
 
 
     while(1) {
-        read((th_data).fd, (th_data).buf, 100);
-        printf("%d, %s\n", (th_data).fd, (th_data).buf);
-        write((th_data).fd_player2, (th_data).buf, 100);
+        //read((th_data).fd, (th_data).buf, 100);
+        //printf("%d, %s\n", (th_data).fd, (th_data).buf);
+        //write((th_data).fd_player2, (th_data).buf, 100);
+        char  a = 'a';
+        write((th_data).fd_player2, &a, 10);
     }
 
     pthread_exit(NULL);

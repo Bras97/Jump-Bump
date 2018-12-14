@@ -24,11 +24,16 @@ bool spada=true, spada2=true;
 int respawn[8][2];
 string w="",w2="";
 bool zbity2=false, zbity=false;
+//string host = "127.0.0.1";
+int port = 1235;
 
+static inline QByteArray IntToArray(qint32 source);
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+
     tcpSocket(new QTcpSocket(this)),
+
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -37,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->start(40);
     ui->game_over->setVisible(0);
 
-    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::writeData);
-    tcpSocket->connectToHost("127.0.0.1", 1234);
+    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
+    tcpSocket->connectToHost("127.0.0.1", port);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -368,9 +373,33 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 }
 
 
-void MainWindow::writeData()
+
+
+bool MainWindow::write()
 {
-    while(true) {
-        tcpSocket->write("tu beda dane\n");
-    }
+    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
+        {
+            char c = 'c';
+            char *wsk_c = &c;
+            tcpSocket->write(wsk_c);
+            return tcpSocket->waitForBytesWritten();
+        }
+    else
+       return false;
+}
+
+void MainWindow::readData()
+{
+     QByteArray temp = tcpSocket->read(100);
+     qInfo() << temp.at(0);
+}
+
+
+QByteArray IntToArray(qint32 source) //Use qint32 to ensure that the number have 4 bytes
+{
+    //Avoid use of cast, this is the Qt way to serialize objects
+    QByteArray temp;
+    QDataStream data(&temp, QIODevice::ReadWrite);
+    data << source;
+    return temp;
 }
