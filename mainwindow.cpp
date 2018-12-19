@@ -400,7 +400,7 @@ void MainWindow::readData()
      int poz_x = qlist[0].toInt();
      int poz_y = qlist[1].toInt();
 
-     //qInfo() << poz_x << " " << poz_y;
+     qInfo() << poz_x << " " << poz_y;
 }
 
 

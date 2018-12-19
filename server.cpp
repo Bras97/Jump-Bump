@@ -70,20 +70,22 @@ void handleConnection(int connection_socket_descriptor, int player2_socket_descr
     pthread_t thread1;
 
     //dane, które zostaną przekazane do wątku
-    struct thread_data_t t_data;
-    t_data.fd = connection_socket_descriptor;
-    t_data.fd_player2 = player2_socket_descriptor;
+    struct thread_data_t * t_data = new thread_data_t;
+    t_data->fd = connection_socket_descriptor;
+    t_data->fd_player2 = player2_socket_descriptor;
 
     printf("%d, %d\n", connection_socket_descriptor, player2_socket_descriptor);
-    printf("%d, %d\n", t_data.fd, t_data.fd_player2);
+    printf("%d, %d\n", t_data->fd, t_data->fd_player2);
 
-    create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void *)&t_data);
+    create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void *)t_data);
 
 
     if (create_result){
         printf("Błąd przy próbie utworzenia wątku, kod błędu: %d\n", create_result);
         exit(-1);
     }
+
+    delete t_data;
 
 
 }
