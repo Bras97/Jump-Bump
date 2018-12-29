@@ -203,7 +203,7 @@ void MainWindow::ruch()
             else
                 w = to_string(wynik1);
             ui->score_1->setText(QString::fromStdString(w));
-            if (wynik1==LIMIT_GRY)
+            if (wynik1>LIMIT_GRY)
             {
 
                 ui->game_over->setVisible(1);
