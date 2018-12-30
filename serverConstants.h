@@ -22,6 +22,7 @@ class Player {
 public:
     std::string login;
     bool logged;
+    bool playing;
     std::string command;
     std::string buf;
     int fd;
@@ -32,6 +33,7 @@ public:
         buf.clear();
         command.clear();
         logged = false;
+        playing = false;
     }
     virtual ~Player() {}
 };
