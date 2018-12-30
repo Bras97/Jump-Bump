@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QApplication>
 #include <QLabel>
+#include <QtNetwork>
 
 namespace Ui {
 class MainWindow;
@@ -25,11 +26,15 @@ public:
     void koniec_gry();
 public slots:
     void ruch();
+    void write();
+    void readData();
+//    void displayError(QAbstractSocket::SocketError socketError);
 
 
 private:
     Ui::MainWindow *ui;
     QTimer *timer;
+    QTcpSocket *tcpSocket;
 
 };
 

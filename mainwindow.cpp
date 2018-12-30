@@ -27,10 +27,18 @@ bool spada=true, spada2=true;
 int respawn[8][2];
 string w="",w2="";
 bool zbity2=false, zbity=false;
+
+//string host = "127.0.0.1";
+int port = 1234;
+
+static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
 MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent) :
     QMainWindow(parent),
+
+    tcpSocket(new QTcpSocket(this)),
+
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -38,6 +46,9 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
+
+    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
+    tcpSocket->connectToHost("127.0.0.1", port);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -356,12 +367,13 @@ void MainWindow::ruch()
         }
         else zbity2=false;
     }
+
+    write();
 }
 
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-
     if(event->key() == Qt::Key_Left)
     {
         polecenie[0]=true;
@@ -413,4 +425,44 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         polecenie[5]=false;
     }
+}
+
+
+
+
+void MainWindow::write()
+{
+    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
+        {
+            char * dane = IntToChar(poz[0], poz[2]);
+
+            //qInfo() << poz[0] << ':' << poz[2] << ' ' << dane;
+            tcpSocket->write(dane);
+            delete[] dane;
+        }
+//    else
+//       return false;
+}
+
+
+
+void MainWindow::readData()
+{
+     QByteArray temp = tcpSocket->read(10);
+     QList<QByteArray> qlist = temp.split(';');
+
+     int poz_x = qlist[0].toInt();
+     int poz_y = qlist[1].toInt();
+
+     qInfo() << poz_x << " " << poz_y;
+}
+
+
+char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the number have 4 bytes
+{
+    string temp = to_string(poz_x) + ';' + to_string(poz_y);
+    char * wspolrzedne = new char[temp.size() + 1];
+    copy(temp.begin(), temp.end(), wspolrzedne);
+    wspolrzedne[temp.size()] = '\0';
+    return wspolrzedne;
 }
