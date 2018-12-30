@@ -81,11 +81,11 @@ color: rgb(85, 170, 0);</string>
           <height>91</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">border-image: url(:/new/prefix1/rabbit2.jpg);</string>
+        </property>
         <property name="text">
          <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/rabbit2.jpg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -95,7 +95,7 @@ color: rgb(85, 170, 0);</string>
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>150</y>
+          <y>160</y>
           <width>81</width>
           <height>16</height>
          </rect>
@@ -112,16 +112,16 @@ color: rgb(85, 170, 0);</string>
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>170</y>
+          <y>180</y>
           <width>121</width>
           <height>91</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">border-image: url(:/new/prefix1/rabbit1.jpg);</string>
+        </property>
         <property name="text">
          <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap resource="img/images.qrc">:/new/prefix1/rabbit1.jpg</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -131,7 +131,7 @@ color: rgb(85, 170, 0);</string>
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>150</y>
+          <y>160</y>
           <width>21</width>
           <height>20</height>
          </rect>
@@ -147,36 +147,17 @@ color: rgb(85, 170, 0);</string>
        <widget class="QLabel" name="label">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>280</y>
-          <width>141</width>
-          <height>191</height>
+          <width>161</width>
+          <height>221</height>
          </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(240, 255, 239);</string>
         </property>
         <property name="text">
-         <string>Czat</string>
+         <string/>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>470</y>
-          <width>141</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(240, 255, 239);</string>
+        <property name="pixmap">
+         <pixmap resource="img/images.qrc">:/new/prefix1/trawa.png</pixmap>
         </property>
        </widget>
       </widget>
@@ -221,8 +202,8 @@ color: rgb(85, 170, 0);</string>
          <rect>
           <x>0</x>
           <y>250</y>
-          <width>51</width>
-          <height>41</height>
+          <width>50</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="focusPolicy">
@@ -533,8 +514,8 @@ color: rgb(85, 170, 0);</string>
          <rect>
           <x>650</x>
           <y>410</y>
-          <width>51</width>
-          <height>41</height>
+          <width>50</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="focusPolicy">

@@ -28,17 +28,9 @@ int respawn[8][2];
 string w="",w2="";
 bool zbity2=false, zbity=false;
 
-//string host = "127.0.0.1";
-int port = 1234;
 
-static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
-QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
-
-MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-
-    tcpSocket(new QTcpSocket(this)),
-
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -46,9 +38,6 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
-
-    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
-    tcpSocket->connectToHost("127.0.0.1", port);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -80,30 +69,6 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
         polecenie[i]=false;
     polecenie[3]=true; //spadaj caly czas jak nie masz gruntu
     polecenie[7]=true; //spadaj caly czas jak nie masz gruntu
-
-    //wybor krolika
-    if(plec=="M")
-    {
-        krolik_l1="border-image: url(:/new/prefix1/rabbit2_icon_l1.png);";
-        krolik_l2="border-image: url(:/new/prefix1/rabbit2_icon_l2.png);";
-        krolik_r1="border-image: url(:/new/prefix1/rabbit2_icon_r1.png);";
-        krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
-        ui->player_1->setStyleSheet(krolik_r2);
-        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_r1.png");
-    }
-    else
-    {
-        krolik_l1="border-image: url(:/new/prefix1/rabbit1_icon_l1.png);";
-        krolik_l2="border-image: url(:/new/prefix1/rabbit1_icon_l2.png);";
-        krolik_r1="border-image: url(:/new/prefix1/rabbit1_icon_r1.png);";
-        krolik_r2="border-image: url(:/new/prefix1/rabbit1_icon_r2.png);";
-        ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
-        ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
-        ui->player_1->setStyleSheet(krolik_r1);
-        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
-    }
-    //nadanie imion
-    ui->name_1->setText(imie);
 }
 
 MainWindow::~MainWindow()
@@ -182,9 +147,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]-PREDKOSC-1, poz[1]-PREDKOSC-1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == krolik_l1)
-                    ui->player_1->setStyleSheet(krolik_l2);
-                else ui->player_1->setStyleSheet(krolik_l1);
+                if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_l1.png);")
+                    ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_l2.png);");
+                else ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_l1.png);");
             ui->player_1->setGeometry(poz[0]-PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
@@ -198,9 +163,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]+PREDKOSC+1, poz[1]+PREDKOSC+1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == krolik_r1)
-                    ui->player_1->setStyleSheet(krolik_r2);
-                else ui->player_1->setStyleSheet(krolik_r1);
+                if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_r1.png);")
+                    ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r2.png);");
+                else ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png);");
                 ui->player_1->setGeometry(poz[0]+PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
@@ -367,13 +332,12 @@ void MainWindow::ruch()
         }
         else zbity2=false;
     }
-
-    write();
 }
 
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+
     if(event->key() == Qt::Key_Left)
     {
         polecenie[0]=true;
@@ -425,44 +389,4 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         polecenie[5]=false;
     }
-}
-
-
-
-
-void MainWindow::write()
-{
-    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
-        {
-            char * dane = IntToChar(poz[0], poz[2]);
-
-            //qInfo() << poz[0] << ':' << poz[2] << ' ' << dane;
-            tcpSocket->write(dane);
-            delete[] dane;
-        }
-//    else
-//       return false;
-}
-
-
-
-void MainWindow::readData()
-{
-     QByteArray temp = tcpSocket->read(10);
-     QList<QByteArray> qlist = temp.split(';');
-
-     int poz_x = qlist[0].toInt();
-     int poz_y = qlist[1].toInt();
-
-     qInfo() << poz_x << " " << poz_y;
-}
-
-
-char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the number have 4 bytes
-{
-    string temp = to_string(poz_x) + ';' + to_string(poz_y);
-    char * wspolrzedne = new char[temp.size() + 1];
-    copy(temp.begin(), temp.end(), wspolrzedne);
-    wspolrzedne[temp.size()] = '\0';
-    return wspolrzedne;
 }
