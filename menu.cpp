@@ -58,10 +58,10 @@ void Menu::on_polaczButton_clicked()
             ui->listaGraczy->addItem("Havier");
             ui->listaGraczy->addItem("Konipia");
 
-            MainWindow *window;
+            /*MainWindow *window;
             window = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
             window->writeLogin(imie);
-
+*/
         }
     }
 }
@@ -78,8 +78,8 @@ void Menu::on_dolaczButton_clicked()
     this->setVisible(false);
     this->setEnabled(false);
     this->close();
-    MainWindow *game;
+    /*MainWindow *game;
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
-    game->show();
+    game->show();*/
 }
 

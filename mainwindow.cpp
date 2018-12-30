@@ -35,7 +35,7 @@ int port = 1234;
 static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
-MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent) :
+MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *parent) :
     QMainWindow(parent),
 
     tcpSocket(new QTcpSocket(this)),
@@ -43,6 +43,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    cout << "Utworzono główne okno" << endl;
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
     tcpSocket->connectToHost("127.0.0.1", port);
@@ -50,7 +51,8 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
-
+    QString plec="M";
+    QString imie="Adam";
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -370,7 +372,7 @@ void MainWindow::ruch()
         else zbity2=false;
     }
 
-    write();
+    //write();
 }
 
 
