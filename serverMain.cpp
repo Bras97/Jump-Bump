@@ -26,7 +26,7 @@ void getCommand(string *buf, string *command) {
     // gdy juz byl poczatek
     if(!(*command).empty()) {
         if ((*command).at(0) == START) {
-//            cout << "start\n";
+            cout << "start\n";
             (*command).append(newPart.substr(0, newPart.find(END) + 1));
             newPart = newPart.substr(newPart.find(END) + 1,
                                      newPart.size() - (newPart.find(END) + 2));
@@ -82,40 +82,41 @@ void *playerPlays (void *t_data)
     while(!player->logged) {
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
+        cout << buffer << '\n';
         player->buf.append(string(buffer));
         getCommand(&player->buf, &player->command);
 
-        if(player->command.at(0) == START && player->command.at(player->command.size()-1) == END) {
+        if(!player->command.empty()) {
+            if(player->command.at(0) == START && player->command.at(player->command.size()-1) == END) {
 
-            if(player->command.at(1) == '0') {
-                string newLogin = player->command.substr(
-                        player->command.find(DELIMITER)+1,
-                        player->command.find(END) - player->command.find(DELIMITER) - 1);
-                cout << newLogin << '\n';
+                if (player->command.at(1) == '0') {
+                    string newLogin = player->command.substr(
+                            player->command.find(DELIMITER) + 1,
+                            player->command.find(END) - player->command.find(DELIMITER) - 1);
+                    cout << newLogin << '\n';
 
-                bool err = false;
+                    bool err = false;
 
-                for (auto &p : *player->players_ptr) {
-                    if(p->login == newLogin) {
-                        err = true;
+                    for (auto &p : *player->players_ptr) {
+                        if (p->login == newLogin) {
+                            err = true;
+                        }
                     }
-                }
 
-                memset(buffer, 0, BUFFER);
+                    memset(buffer, 0, BUFFER);
 
-                // gdy login juz istnieje
-                if(err) {
-                    string message = "#0;0&";
-                    strcpy(buffer, message.c_str());
-                    write(player->fd, buffer, message.size());
-                }
-
-                else {
-                    player->login.append(newLogin);
-                    player->logged = true;
-                    string message = "#0;1&";
-                    strcpy(buffer, message.c_str());
-                    write(player->fd, buffer, message.size());
+                    // gdy login juz istnieje
+                    if (err) {
+                        string message = "#0;0&";
+                        strcpy(buffer, message.c_str());
+                        write(player->fd, buffer, message.size());
+                    } else {
+                        player->login.append(newLogin);
+                        player->logged = true;
+                        string message = "#0;1&";
+                        strcpy(buffer, message.c_str());
+                        write(player->fd, buffer, message.size());
+                    }
                 }
             }
         }
