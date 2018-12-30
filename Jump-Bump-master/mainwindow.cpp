@@ -7,7 +7,6 @@
 #include <QApplication>
 #include <QDebug>
 #include <iostream>
-#include <QtNetwork>
 #include <string>
 #include <QTime>
 
@@ -43,14 +42,13 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
-    tcpSocket->connectToHost("127.0.0.1", port);
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
 
+    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
+    tcpSocket->connectToHost("127.0.0.1", port);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -448,16 +446,13 @@ void MainWindow::write()
 
 void MainWindow::writeLogin(string imie)
 {
-    cout << tcpSocket->state() << endl;
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
         string temp = "#0;" + imie +'&';
-        cout << "WESZŁO" << endl;
         char * komunikat = new char[temp.size() + 1];
         copy(temp.begin(), temp.end(), komunikat);
         komunikat[temp.size()] = '\0';
-        qInfo() << komunikat << endl;
         tcpSocket->write(komunikat);
-        qInfo() << komunikat << endl;
+        qInfo() << komunikat;
         delete[] komunikat;
     }
 }

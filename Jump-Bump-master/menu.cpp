@@ -58,9 +58,7 @@ void Menu::on_polaczButton_clicked()
             ui->listaGraczy->addItem("Havier");
             ui->listaGraczy->addItem("Konipia");
 
-            MainWindow *window;
-            window = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
-            window->writeLogin(imie);
+            MainWindow::writeLogin(imie);
 
         }
     }
