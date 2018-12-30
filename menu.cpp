@@ -58,6 +58,8 @@ void Menu::on_polaczButton_clicked()
             ui->listaGraczy->addItem("Havier");
             ui->listaGraczy->addItem("Konipia");
 
+            MainWindow::writeLogin(imie);
+
         }
     }
 }

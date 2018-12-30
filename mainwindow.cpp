@@ -444,7 +444,18 @@ void MainWindow::write()
 //       return false;
 }
 
-
+void MainWindow::writeLogin(string imie)
+{
+    if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
+        string temp = "#0;" + imie +'&';
+        char * komunikat = new char[temp.size() + 1];
+        copy(temp.begin(), temp.end(), komunikat);
+        komunikat[temp.size()] = '\0';
+        tcpSocket->write(komunikat);
+        qInfo() << komunikat;
+        delete[] komunikat;
+    }
+}
 
 void MainWindow::readData()
 {

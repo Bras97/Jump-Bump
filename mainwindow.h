@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QLabel>
 #include <QtNetwork>
+#include <string>
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,7 @@ public:
 public slots:
     void ruch();
     void write();
+    void writeLogin(std::string imie);
     void readData();
 //    void displayError(QAbstractSocket::SocketError socketError);
 
