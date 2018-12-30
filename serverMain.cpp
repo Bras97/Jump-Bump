@@ -82,6 +82,7 @@ void *playerPlays (void *t_data)
     while(!player->logged) {
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
+		cout << string(buffer) << endl;
         player->buf.append(string(buffer));
         getCommand(&player->buf, &player->command);
 
