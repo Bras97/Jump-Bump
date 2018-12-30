@@ -16,8 +16,6 @@
 #define END '&'
 #define BUFFER 20
 
-pthread_mutex_t mutex_server = PTHREAD_MUTEX_INITIALIZER;
-
 class Player {
 public:
     std::string login;
@@ -28,6 +26,7 @@ public:
     int fd;
     int opponentFd;
     std::list <Player *> *players_ptr;
+    pthread_mutex_t *mutex;
 
     Player() {
         login.clear();
@@ -57,6 +56,7 @@ struct thread_data
 {
     int fd;
     std::list <Player *> *players_ptr;
+    pthread_mutex_t *mutex;
 };
 
 struct thread_data_game
