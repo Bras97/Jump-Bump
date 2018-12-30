@@ -12,13 +12,5 @@ int main(int argc, char *argv[])
     Menu m;
     m.show();
     return a.exec();
-    while(m.isEnabled())
-    {
-        cout << "x";
-    }
-    cout << "o" << endl;
-    MainWindow w;
-    w.show();
-    return a.exec();
 
 }

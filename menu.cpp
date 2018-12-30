@@ -6,6 +6,9 @@
 #include <QtGui>
 
 using namespace std;
+string plec ="M";
+string imie = "";
+
 
 Menu::Menu(QWidget *parent) :
     QDialog(parent),
@@ -31,8 +34,7 @@ void Menu::on_plecK_clicked()
 
 void Menu::on_polaczButton_clicked()
 {
-    string imie=ui->imieText->text().toStdString();
-    string plec ="M";
+    imie=ui->imieText->text().toStdString();
     if(imie=="")
     {
         QMessageBox::information(this,"Błąd", "Proszę podać imię królika!");
@@ -73,7 +75,7 @@ void Menu::on_dolaczButton_clicked()
     this->setEnabled(false);
     this->close();
     MainWindow *game;
-    game = new MainWindow(this);
+    game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
     game->show();
 }
 

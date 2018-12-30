@@ -27,9 +27,9 @@ bool spada=true, spada2=true;
 int respawn[8][2];
 string w="",w2="";
 bool zbity2=false, zbity=false;
+QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
-
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(const QString &plec, const QString &imie, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -69,6 +69,30 @@ MainWindow::MainWindow(QWidget *parent) :
         polecenie[i]=false;
     polecenie[3]=true; //spadaj caly czas jak nie masz gruntu
     polecenie[7]=true; //spadaj caly czas jak nie masz gruntu
+
+    //wybor krolika
+    if(plec=="M")
+    {
+        krolik_l1="border-image: url(:/new/prefix1/rabbit2_icon_l1.png);";
+        krolik_l2="border-image: url(:/new/prefix1/rabbit2_icon_l2.png);";
+        krolik_r1="border-image: url(:/new/prefix1/rabbit2_icon_r1.png);";
+        krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
+        ui->player_1->setStyleSheet(krolik_r2);
+        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_r1.png");
+    }
+    else
+    {
+        krolik_l1="border-image: url(:/new/prefix1/rabbit1_icon_l1.png);";
+        krolik_l2="border-image: url(:/new/prefix1/rabbit1_icon_l2.png);";
+        krolik_r1="border-image: url(:/new/prefix1/rabbit1_icon_r1.png);";
+        krolik_r2="border-image: url(:/new/prefix1/rabbit1_icon_r2.png);";
+        ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
+        ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
+        ui->player_1->setStyleSheet(krolik_r1);
+        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+    }
+    //nadanie imion
+    ui->name_1->setText(imie);
 }
 
 MainWindow::~MainWindow()
@@ -147,9 +171,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]-PREDKOSC-1, poz[1]-PREDKOSC-1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_l1.png);")
-                    ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_l2.png);");
-                else ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_l1.png);");
+                if (ui->player_1->styleSheet() == krolik_l1)
+                    ui->player_1->setStyleSheet(krolik_l2);
+                else ui->player_1->setStyleSheet(krolik_l1);
             ui->player_1->setGeometry(poz[0]-PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
@@ -163,9 +187,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]+PREDKOSC+1, poz[1]+PREDKOSC+1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == "border-image: url(:/new/prefix1/rabbit2_icon_r1.png);")
-                    ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r2.png);");
-                else ui->player_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png);");
+                if (ui->player_1->styleSheet() == krolik_r1)
+                    ui->player_1->setStyleSheet(krolik_r2);
+                else ui->player_1->setStyleSheet(krolik_r1);
                 ui->player_1->setGeometry(poz[0]+PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
@@ -203,7 +227,7 @@ void MainWindow::ruch()
             else
                 w = to_string(wynik1);
             ui->score_1->setText(QString::fromStdString(w));
-            if (wynik1==LIMIT_GRY)
+            if (wynik1>LIMIT_GRY)
             {
 
                 ui->game_over->setVisible(1);
