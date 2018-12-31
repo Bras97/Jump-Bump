@@ -25,7 +25,7 @@ void getCommand(string *buf, string *command) {
     // gdy juz byl poczatek
     if(!(*command).empty()) {
         if ((*command).at(0) == START) {
-            cout << "start\n";
+//            cout << "start\n";
             (*command).append(newPart.substr(0, newPart.find(END) + 1));
             newPart = newPart.substr(newPart.find(END) + 1,
                                      newPart.size() - (newPart.find(END) + 2));
@@ -58,6 +58,178 @@ void getCommand(string *buf, string *command) {
 
 }
 
+void funcLogin(Player *player) {
+
+    char buffer[BUFFER];
+    string newLogin = player->command.substr(
+            player->command.find(DELIMITER) + 1,
+            player->command.find(END) - player->command.find(DELIMITER) - 1);
+
+    bool err = false;
+
+    for (auto &p : *player->players_ptr) {
+        if (p->login == newLogin) {
+            err = true;
+        }
+    }
+
+    memset(buffer, 0, BUFFER);
+
+    // gdy login juz istnieje
+    if (err) {
+        string message = "#0;0&";
+        strcpy(buffer, message.c_str());
+        write(player->fd, buffer, message.size());
+    } else {
+        cout << newLogin << '\n';
+        player->login.append(newLogin);
+        player->logged = true;
+        string message = "#0;1&";
+        strcpy(buffer, message.c_str());
+        write(player->fd, buffer, message.size());
+    }
+}
+
+void funcList(Player *player) {
+    char buffer[BUFFER];
+
+    string s = "#1";
+    strcpy(buffer, s.c_str());
+    write(player->fd, buffer, 2);
+    memset(buffer, 0, BUFFER);
+    for (auto &p : *player->players_ptr) {
+        if ((!p->login.empty()) && p->fd != player->fd) {
+            string message = ';' + p->login;
+            strcpy(buffer, message.c_str());
+            write(player->fd, buffer, message.size());
+            memset(buffer, 0, BUFFER);
+        }
+    }
+    s = "&";
+    strcpy(buffer, s.c_str());
+    write(player->fd, buffer, 1);
+}
+
+void funcInvite(Player *player) {
+    char buffer[BUFFER];
+
+    int opponentFd = -1;
+
+    string opponentLogin = player->command.substr(player->command.find(DELIMITER) + 1,
+                                                  player->command.size() - player->command.find(DELIMITER) - 2);
+    if(opponentLogin == player->login) {
+        string message = "#2;0&";
+        strcpy(buffer, message.c_str());
+        write(player->fd, buffer, message.size());
+        return;
+    }
+
+    for (auto &p : *player->players_ptr) {
+        if (p->login == opponentLogin) {
+            if (!p->playing) {
+                opponentFd = p->fd;
+            }
+            break;
+        }
+    }
+
+    if (opponentFd == -1) {
+        string message = "#2;0&";
+        strcpy(buffer, message.c_str());
+        write(player->fd, buffer, message.size());
+    }
+
+        // wysyla zaproszenie
+    else {
+        string message = "#2;1&";
+        strcpy(buffer, message.c_str());
+        write(player->fd, buffer, message.size());
+        memset(buffer, 0, BUFFER);
+
+        message.clear();
+        message.append("#3;");
+        message.append(player->login);
+        message.append("&");
+        strcpy(buffer, message.c_str());
+        write(opponentFd, buffer, message.size());
+
+        player->command.clear();
+
+        // czeka na odpowiedz
+        char reply = '.';
+        while (reply == '.') {
+            memset(buffer, 0, BUFFER);
+            read(player->fd, buffer, BUFFER);
+            player->buf.append(string(buffer));
+            getCommand(&player->buf, &player->command);
+
+            if(!player->command.empty()) {
+                if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
+
+                    // w miedzyczasie ktos go zaprasza
+                    if (player->command.at(1) == '3') {
+
+                        //wyslij ze niedostepny
+
+                    } else if (player->command.at(1) == '4') {
+                        reply = player->command.at(3);
+                    }
+
+                    player->command.clear();
+                }
+            }
+
+        }
+
+        //zgodzil sie na gre
+        if (reply == '1') {
+
+            player->playing = true;
+            player->opponentFd = opponentFd;
+
+        }
+    }
+}
+
+void funcIsInvited(Player *player) {
+    char buffer[BUFFER];
+
+    size_t firstDelimiter = player->command.find(DELIMITER);
+    size_t secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
+
+    string opponentLogin = player->command.substr(firstDelimiter + 1,
+                                                  secondDelimiter - firstDelimiter - 1);
+    int opponentFd = -1;
+    Player *opponent = nullptr;
+
+    for (auto &p : *player->players_ptr) {
+        if (p->login == opponentLogin) {
+            opponentFd = p->fd;
+            opponent = p;
+        }
+    }
+
+    char reply = player->command.at(secondDelimiter + 1);
+    // zgadza sie na gre
+    if (reply == '1') {
+        string message = "#4;1&";
+        strcpy(buffer, message.c_str());
+        write(opponentFd, buffer, message.size());
+
+        player->opponentFd = opponentFd;
+        player->playing = true;
+
+        // start watku gry (do kolizji)
+        //startGame(&player, &opponent);
+
+    } else {
+        string message = "#4;0&";
+        strcpy(buffer, message.c_str());
+        write(opponentFd, buffer, message.size());
+        memset(buffer, 0, BUFFER);
+    }
+}
+
 //funkcja obslugujaca gracza
 void *playerPlays (void *t_data)
 {
@@ -65,7 +237,7 @@ void *playerPlays (void *t_data)
     cout << "player ";
 
 
-    Player *player = new Player();
+    auto *player = new Player();
     player->fd = ((struct thread_data*)(t_data))->fd;
     player->players_ptr = ((struct thread_data*)(t_data))->players_ptr;
     player->players_ptr->push_back(player);
@@ -82,7 +254,6 @@ void *playerPlays (void *t_data)
     while(!player->logged) {
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
-        cout << "buf: " << buffer << '\n';
         player->buf.append(string(buffer));
         getCommand(&player->buf, &player->command);
 
@@ -90,34 +261,10 @@ void *playerPlays (void *t_data)
             if(player->command.at(0) == START && player->command.at(player->command.size()-1) == END) {
 
                 if (player->command.at(1) == '0') {
-                    string newLogin = player->command.substr(
-                            player->command.find(DELIMITER) + 1,
-                            player->command.find(END) - player->command.find(DELIMITER) - 1);
-                    cout << newLogin << '\n';
-
-                    bool err = false;
-
-                    for (auto &p : *player->players_ptr) {
-                        if (p->login == newLogin) {
-                            err = true;
-                        }
-                    }
-
-                    memset(buffer, 0, BUFFER);
-
-                    // gdy login juz istnieje
-                    if (err) {
-                        string message = "#0;0&";
-                        strcpy(buffer, message.c_str());
-                        write(player->fd, buffer, message.size());
-                    } else {
-                        player->login.append(newLogin);
-                        player->logged = true;
-                        string message = "#0;1&";
-                        strcpy(buffer, message.c_str());
-                        write(player->fd, buffer, message.size());
-                    }
+                    funcLogin(player);
                 }
+
+                player->command.clear();
             }
         }
     }
@@ -130,156 +277,34 @@ void *playerPlays (void *t_data)
         player->buf.append(string(buffer));
         getCommand(&player->buf, &player->command);
 
-        if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
-            memset(buffer, 0, BUFFER);
+        if(!player->command.empty()) {
+            if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
 
-            // wyslij liste graczy
-            if (player->command.at(1) == '1') {
-                string s = "#1";
-                strcpy(buffer, s.c_str());
-                write(player->fd, buffer, 2);
-                memset(buffer, 0, BUFFER);
-                for (auto &p : *player->players_ptr) {
-                    if ((!p->login.empty()) && p->fd != player->fd) {
-                        string message = ';' + p->login;
-                        strcpy(buffer, message.c_str());
-                        write(player->fd, buffer, message.size());
-                        memset(buffer, 0, BUFFER);
-                    }
+                // wyslij liste graczy
+                if (player->command.at(1) == '1') {
+                    funcList(player);
                 }
-                s = "&";
-                strcpy(buffer, s.c_str());
-                write(player->fd, buffer, 1);
+
+                    // gracz chce zaprosic gracza2 do gry
+                else if (player->command.at(1) == '2') {
+                    funcInvite(player);
+
+                }
+
+                    // gracz jest zapraszany do gry
+                else if (player->command.at(1) == '3') {
+                    funcIsInvited(player);
+                }
+
+                player->command.clear();
             }
-
-                // gracz chce zaprosic gracza2 do gry
-            else if (player->command.at(1) == '2') {
-
-                int opponentFd = -1;
-
-                string opponentLogin = player->command.substr(player->command.find(DELIMITER) + 1,
-                                                              player->command.size() - player->command.find(DELIMITER));
-
-                for (auto &p : *player->players_ptr) {
-                    if (p->login == opponentLogin) {
-                        if (p->playing == false) {
-                            opponentFd = p->fd;
-                        }
-                        break;
-                    }
-                }
-
-                if (opponentFd == -1) {
-                    string message = "#2;0&";
-                    strcpy(buffer, message.c_str());
-                    write(player->fd, buffer, message.size());
-                }
-
-                    // wysyla zaproszenie
-                else {
-                    string message = "#2;1&";
-                    strcpy(buffer, message.c_str());
-                    write(player->fd, buffer, message.size());
-                    memset(buffer, 0, BUFFER);
-
-                    message.clear();
-                    message.append("#3;");
-                    message.append(player->login);
-                    message.append("&");
-                    strcpy(buffer, message.c_str());
-                    write(opponentFd, buffer, message.size());
-
-                    player->command.clear();
-
-                    // czeka na odpowiedz
-                    int reply = -1;
-                    while (reply == -1) {
-                        memset(buffer, 0, BUFFER);
-                        read(player->fd, buffer, BUFFER);
-                        player->buf.append(string(buffer));
-                        getCommand(&player->buf, &player->command);
-
-                        if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
-
-                            if(player->command.at(1) == '3') {
-
-                            }
-
-                            else if (player->command.at(1) != '4') {
-                                player->command.clear();
-                                break;
-                            }
-
-                            else reply = player->command.at(3);
-                        }
-
-                    }
-
-                    memset(buffer, 0, BUFFER);
-                    //zgodzil sie na gre
-                    if (reply == 1) {
-                        string message = "#4;1&";
-                        strcpy(buffer, message.c_str());
-                        write(opponentFd, buffer, message.size());
-
-                        player->playing = true;
-                        player->opponentFd = opponentFd;
-
-                    } else {
-                        string message = "#4;0&";
-                        strcpy(buffer, message.c_str());
-                        write(opponentFd, buffer, message.size());
-                    }
-                }
-            }
-
-                // gracz jest zapraszany do gry
-            else if (player->command.at(1) == '3') {
-
-                int firstDelimiter = player->command.find(DELIMITER);
-                int secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
-
-                string opponentLogin = player->command.substr(firstDelimiter + 1,
-                                                              secondDelimiter - firstDelimiter - 1);
-                int opponentFd = -1;
-                Player *opponent = nullptr;
-
-                for (auto &p : *player->players_ptr) {
-                    if (p->login == opponentLogin) {
-                        opponentFd = p->fd;
-                        opponent = p;
-                    }
-                }
-
-                char reply = player->command.at(secondDelimiter + 1);
-                // zgadza sie na gre
-                if (reply == '1') {
-                    string message = "#3;1&";
-                    strcpy(buffer, message.c_str());
-                    write(opponentFd, buffer, message.size());
-
-                    player->opponentFd = opponentFd;
-                    player->playing = true;
-
-                    // start watku gry (do kolizji)
-                    //startGame(&player, &opponent);
-
-                } else {
-                    string message = "#3;0&";
-                    strcpy(buffer, message.c_str());
-                    write(player->fd, buffer, message.size());
-                    memset(buffer, 0, BUFFER);
-                }
-
-
-            }
-
-            player->command.clear();
         }
     }
 
     // przesylanie pozycji
     while(player->playing) {
+
+        char buffer[BUFFER];
 
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
@@ -287,11 +312,12 @@ void *playerPlays (void *t_data)
         getCommand(&player->buf, &player->command);
 
         if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
-            memset(buffer, 0, BUFFER);
 
             if(player->command.at(1) == '9') {
                 write(player->opponentFd, buffer, BUFFER);
             }
+
+            player->command.clear();
 
         }
 
@@ -301,3 +327,4 @@ void *playerPlays (void *t_data)
 
     delete player;
 }
+
