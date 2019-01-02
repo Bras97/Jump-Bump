@@ -9,6 +9,8 @@
 using namespace std;
 string plec ="M";
 string imie = "";
+string dlugi_tekst="";
+string lista_graczy="";
 int odp_polaczono=-1;
 int port = 1234;
 
@@ -80,9 +82,12 @@ void Menu::on_polaczButton_clicked()
 
             writeLogin(imie);
 
-            //czekaj na odp
-            do {  }
+            do
+            {
+                qApp->processEvents();
+            }
             while(odp_polaczono==-1);
+
             if(odp_polaczono==0)
             {
                 QMessageBox::information(this,"Błąd", "Użytkownik z taką nazwą już istnieje");
@@ -137,7 +142,6 @@ void Menu::writeLogin(string nick)
     }
 }
 
-string dlugi_tekst="";
 QByteArray Menu::scalanie()
 {
     string komunikat="";
@@ -183,8 +187,13 @@ void Menu::readData()
 
      switch(numer)
      {
-        case 0: {(tresc=="0") ? odp_polaczono=0 : odp_polaczono=1; break;}
-        default: break;
+         case 0: {(tresc=="0") ? odp_polaczono=0 : odp_polaczono=1; break;}
+         case 1:
+         {
+             lista_graczy=tresc;
+             break;
+         }
+         default: break;
 
      }
 
