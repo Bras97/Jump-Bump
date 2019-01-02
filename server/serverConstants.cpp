@@ -4,7 +4,8 @@
 
 #include "serverConstants.h"
 #include <string.h>
-#include <zconf.h>
+#include <unistd.h>
+#include <netdb.h> 
 #include <iostream>
 
 using namespace std;

@@ -26,10 +26,13 @@ private slots:
     void on_listaGraczy_clicked(const QModelIndex &index);
 
     void on_dolaczButton_clicked();
+
     QByteArray scalanie();
 
+    void wyslij(std::string temp);
+
 public slots:
-    void writeLogin(std::string imie);
+    void write(int polecenie, std::string imie);
     void readData();
 
 private:

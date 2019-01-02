@@ -10,8 +10,9 @@ using namespace std;
 string plec ="M";
 string imie = "";
 string dlugi_tekst="";
-string lista_graczy="";
+QByteArray lista_graczy="";
 int odp_polaczono=-1;
+int odp_lista=-1;
 int port = 1234;
 
 static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
@@ -80,7 +81,7 @@ void Menu::on_polaczButton_clicked()
             if (ui->plecK->isChecked()==true)
                 plec="K";
 
-            writeLogin(imie);
+            write(0,imie);
 
             do
             {
@@ -94,6 +95,12 @@ void Menu::on_polaczButton_clicked()
             }
             else if(odp_polaczono==1)
             {
+                write(1,imie);
+                do
+                {
+                    qApp->processEvents();
+                }
+                while(odp_lista==-1);
                 ui->polaczButton->setEnabled(false);
                 ui->imieText->setEnabled(false);
                 ui->plecM->setEnabled(false);
@@ -101,11 +108,19 @@ void Menu::on_polaczButton_clicked()
                 ui->listaGraczy->setEnabled(true);
                 ui->listaGraczy->setStyleSheet("background-color: white;");
                 ui->odswiezButton->setEnabled(true);
-                ui->listaGraczy->addItem("Jeriho");
-                ui->listaGraczy->addItem("Havier");
-                ui->listaGraczy->addItem("Konipia");
+
+                qInfo() << lista_graczy;
+                if(lista_graczy!="")
+                {
+                    QList<QByteArray> lista_graczy_podzielona=lista_graczy.split(':');
+                    for(int i=0; i<lista_graczy_podzielona.size(); i++)
+                        ui->listaGraczy->addItem(lista_graczy_podzielona[i]);
+                }
+                else
+                    QMessageBox::information(this,"Informacja", "Nie ma jeszcze żadnego gracza. Poczekaj chwilę");
             }
             odp_polaczono=-1;
+            odp_lista=-1;
         }
     }
 }
@@ -127,18 +142,30 @@ void Menu::on_dolaczButton_clicked()
     game->show();*/
 }
 
-void Menu::writeLogin(string nick)
+void Menu::wyslij(string temp)
+{
+    char * komunikat = new char[temp.size() + 1];
+    copy(temp.begin(), temp.end(), komunikat);
+    komunikat[temp.size()] = '\0';
+    qInfo() << komunikat << endl;
+    tcpSocket->write(komunikat);
+    delete[] komunikat;
+
+}
+
+void Menu::write(int polecenie, string nick)
 {
     cout << tcpSocket->state() << endl;
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
-        string temp = "#0;" + nick +'&';
-        char * komunikat = new char[temp.size() + 1];
-        copy(temp.begin(), temp.end(), komunikat);
-        komunikat[temp.size()] = '\0';
-        qInfo() << komunikat << endl;
-        tcpSocket->write(komunikat);
-        qInfo() << komunikat << endl;
-        delete[] komunikat;
+        switch(polecenie)
+        {
+            case 0: wyslij(string("#0;" + nick + "&"));
+                    break;
+            case 1: wyslij(string("#1;1&"));
+                    break;
+            default: break;
+        }
+
     }
 }
 
@@ -175,29 +202,37 @@ QByteArray Menu::scalanie()
 
 void Menu::readData()
 {
-     QByteArray temp = tcpSocket->read(10);
-     dlugi_tekst+=temp.toStdString();
-     QByteArray komunikat = scalanie();
+     QByteArray komunikat="";
+         QByteArray temp = tcpSocket->read(10);
+         //cout << dlugi_tekst << " " << temp.toStdString() << endl;
+         dlugi_tekst+=temp.toStdString();
 
-     QList<QByteArray> qlist = komunikat.split(';');
+         komunikat = scalanie();
+         cout << komunikat.toStdString() <<endl;
+         QList<QByteArray> qlist = komunikat.split(';');
 
-     int numer = qlist[0].toInt();
-     string tresc = qlist[1].toStdString();
-
-
-     switch(numer)
-     {
-         case 0: {(tresc=="0") ? odp_polaczono=0 : odp_polaczono=1; break;}
-         case 1:
+         int numer = qlist[0].toInt();
+         QByteArray tresc = qlist[1];
+         switch(numer)
          {
-             lista_graczy=tresc;
-             break;
-         }
-         default: break;
+             case 0:
+            {
+                 (tresc=="0") ? odp_polaczono=0 : odp_polaczono=1;
+                 break;
+            }
+            case 1:
+            {
+                 cout << "Tresc: " << tresc.toStdString() <<endl;
+                 lista_graczy = QByteArray(tresc);
+                 cout <<"Lista graczy: " << lista_graczy.toStdString()<< endl;
+                 odp_lista=0;
+                 break;
+            }
+            default: break;
+        }
+    //}
+    //while(komunikat!="");
 
-     }
-
-     cout << numer << " " << tresc << " " << odp_polaczono << endl;
 }
 
 
