@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include <QDialog>
+#include <QtNetwork>
 
 namespace Ui {
 class Menu;
@@ -25,9 +26,15 @@ private slots:
     void on_listaGraczy_clicked(const QModelIndex &index);
 
     void on_dolaczButton_clicked();
+    QByteArray scalanie();
+
+public slots:
+    void writeLogin(std::string imie);
+    void readData();
 
 private:
     Ui::Menu *ui;
+    QTcpSocket *tcpSocket;
 };
 
 #endif // MENU_H

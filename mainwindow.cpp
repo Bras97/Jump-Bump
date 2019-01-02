@@ -30,23 +30,15 @@ string w="",w2="";
 bool zbity2=false, zbity=false;
 
 //string host = "127.0.0.1";
-int port = 1234;
-
-static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
 MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *parent) :
     QMainWindow(parent),
 
-    tcpSocket(new QTcpSocket(this)),
-
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    cout << "Utworzono główne okno" << endl;
-    tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, &QIODevice::readyRead, this, &MainWindow::readData);
-    tcpSocket->connectToHost("127.0.0.1", port);
+    //tcpSocket = new QTcpSocket(this);
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
@@ -432,89 +424,3 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 }
 
 
-
-
-void MainWindow::write()
-{
-    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
-        {
-            char * dane = IntToChar(poz[0], poz[2]);
-
-            //qInfo() << poz[0] << ':' << poz[2] << ' ' << dane;
-            tcpSocket->write(dane);
-            delete[] dane;
-        }
-//    else
-//       return false;
-}
-
-void MainWindow::writeLogin(string imie)
-{
-    cout << tcpSocket->state() << endl;
-    if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
-        string temp = "#0;" + imie +'&';
-        cout << "WESZŁO" << endl;
-        char * komunikat = new char[temp.size() + 1];
-        copy(temp.begin(), temp.end(), komunikat);
-        komunikat[temp.size()] = '\0';
-        qInfo() << komunikat << endl;
-        tcpSocket->write(komunikat);
-        qInfo() << komunikat << endl;
-        delete[] komunikat;
-    }
-}
-string dlugi_tekst="#0;1&sdfasfsa#3;hahaha&#4221";
-QByteArray scalanie()
-{
-    string komunikat="";
-    int i=0,usun=0;
-    bool zapisuj=false, poprawny=false;
-    for(int i=0; i<dlugi_tekst.size(); i++)
-    {
-        if(dlugi_tekst[i]=='&' && zapisuj == true)
-        {
-            poprawny=true;
-            usun=i+1;
-            break;
-        }
-        if (zapisuj==true)
-            komunikat+=dlugi_tekst[i];
-        if (dlugi_tekst[i]=='#')
-        {
-            zapisuj=true;
-        }
-    }
-    if(poprawny==true)
-    {
-        dlugi_tekst.erase(0,usun);
-        cout << "Komunikat: " << komunikat << endl;
-        poprawny=false;
-    }
-    QByteArray byteArray(komunikat.c_str(), komunikat.length());
-    return byteArray;
-
-}
-
-void MainWindow::readData()
-{
-     QByteArray temp = tcpSocket->read(10);
-     dlugi_tekst+=temp.toStdString();
-     QByteArray komunikat = scalanie();
-
-     QList<QByteArray> qlist = komunikat.split(';');
-
-     int poz_x = qlist[0].toInt();
-     int poz_y = qlist[1].toInt();
-
-     qInfo() << poz_x << " " << poz_y;
-}
-
-
-char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the number have 4 bytes
-{
-    string temp = to_string(poz_x) + ';' + to_string(poz_y);
-    char * wspolrzedne = new char[temp.size() + 1];
-    copy(temp.begin(), temp.end(), wspolrzedne);
-    wspolrzedne[temp.size()] = '\0';
-    return wspolrzedne;
-}
