@@ -66,7 +66,7 @@ Player* getOpponent(Player *player){
     size_t secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
 
     string opponentLogin = player->command.substr(firstDelimiter + 1,
-                                                  secondDelimiter - firstDelimiter - 1);
+                                                  player->command.size() - firstDelimiter - 2);
     Player *opponent = nullptr;
 
     for (auto &p : *player->players_ptr) {
