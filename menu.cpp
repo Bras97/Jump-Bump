@@ -11,28 +11,19 @@ string plec ="M";
 string imie = "";
 string dlugi_tekst="";
 QByteArray lista_graczy;
+int odp_czy_wolny=-1;
 int odp_polaczono=-1;
+int odp_zaproszenie=-1;
 int odp_lista=-1;
 int port = 1234;
 
 static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
 
-/*
-void MainWindow::write()
+template<class T>
+bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
 {
-    if(tcpSocket->state() == QAbstractSocket::ConnectedState)
-        {
-            char * dane = IntToChar(poz[0], poz[2]);
-
-            //qInfo() << poz[0] << ':' << poz[2] << ' ' << dane;
-            tcpSocket->write(dane);
-            delete[] dane;
-        }
-//    else
-//       return false;
+    return haystack.find(needle) != std::basic_string<T>::npos;
 }
-*/
-
 
 
 
@@ -72,6 +63,10 @@ void Menu::on_polaczButton_clicked()
     {
         QMessageBox::information(this,"Błąd", "Proszę podać imię królika!");
     }
+    else if(isSubstring(imie,"#") || isSubstring(imie,";") || isSubstring(imie,"&") || isSubstring(imie,":") )
+    {
+        QMessageBox::information(this,"Błąd", "Użyto niedozwolonego znaku!");
+    }
     else
     {
         if(ui->plecM->isChecked()==false && ui->plecK->isChecked()==false)
@@ -93,17 +88,17 @@ void Menu::on_polaczButton_clicked()
             {
                 QMessageBox::information(this,"Błąd", "Użytkownik z taką nazwą już istnieje");
             }
-
-            ui->polaczButton->setEnabled(false);
-            ui->imieText->setEnabled(false);
-            ui->plecM->setEnabled(false);
-            ui->plecK->setEnabled(false);
-            ui->listaGraczy->setEnabled(true);
-            ui->listaGraczy->setStyleSheet("background-color: white;");
-            ui->odswiezButton->setEnabled(true);
-
+            else
+            {
+                ui->polaczButton->setEnabled(false);
+                ui->imieText->setEnabled(false);
+                ui->plecM->setEnabled(false);
+                ui->plecK->setEnabled(false);
+                ui->listaGraczy->setEnabled(true);
+                ui->listaGraczy->setStyleSheet("background-color: white;");
+                ui->odswiezButton->setEnabled(true);
+            }
             odp_polaczono=-1;
-            odp_lista=-1;
         }
     }
 }
@@ -118,10 +113,38 @@ void Menu::on_listaGraczy_clicked(const QModelIndex &index)
 
 void Menu::on_dolaczButton_clicked()
 {
-    QMessageBox::information(this,"Informacja", "Wybrano królika: " + ui->listaGraczy->currentItem()->text());
-    this->setVisible(false);
-    this->setEnabled(false);
-    this->close();
+    QString przeciwnik=ui->listaGraczy->currentItem()->text();
+    write(2,przeciwnik.toStdString());
+    do
+    {
+        qApp->processEvents();
+    }
+    while(odp_czy_wolny==-1);
+
+    if(odp_czy_wolny==0)
+        QMessageBox::information(this,"Informacja", "Królik "  + przeciwnik + " skacze teraz z kimś innym. Wybierz innego gracza");
+    else if(odp_czy_wolny==1)
+    {
+        write(3,przeciwnik.toStdString());
+        do
+        {
+            qApp->processEvents();
+        }
+        while(odp_zaproszenie==-1);
+        if(odp_zaproszenie==0)
+        {
+            QMessageBox::information(this,"Informacja", "Królik "  + przeciwnik + " odrzucił twoje zaproszenie.");
+        }
+        else if(odp_zaproszenie==1)
+        {
+
+            QMessageBox::information(this,"Informacja", przeciwnik + " przyjął zaproszenie. Kliknij OK by rozpocząć.");
+            this->setVisible(false);
+            this->setEnabled(false);
+            this->close();
+
+        }
+    }
     /*MainWindow *game;
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
     game->show();*/
@@ -140,13 +163,16 @@ void Menu::wyslij(string temp)
 
 void Menu::write(int polecenie, string nick)
 {
-    cout << tcpSocket->state() << endl;
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
         switch(polecenie)
         {
             case 0: wyslij(string("#0;" + nick + "&"));
                     break;
             case 1: wyslij(string("#1;1&"));
+                    break;
+            case 2: wyslij(string("#2;" + nick + "&"));
+                    break;
+            case 3: wyslij(string("#3;" + nick + "&"));
                     break;
             default: break;
         }
@@ -189,7 +215,6 @@ void Menu::readData()
 {
      QByteArray komunikat="";
          QByteArray temp = tcpSocket->read(10);
-         //cout << dlugi_tekst << " " << temp.toStdString() << endl;
          dlugi_tekst+=temp.toStdString();
 
          komunikat = scalanie();
@@ -207,11 +232,33 @@ void Menu::readData()
             }
             case 1:
             {
-                 cout << "Tresc: " << tresc.toStdString() <<endl;
                  lista_graczy = tresc;
-                 cout <<"Lista graczy: " << lista_graczy.toStdString()<< endl;
                  odp_lista=0;
                  break;
+            }
+            case 2:
+            {
+                (tresc=="0") ? odp_czy_wolny=0 : odp_czy_wolny=1;
+                break;
+            }
+            case 3:
+            {
+                 QMessageBox::StandardButton reply;
+                 reply = QMessageBox::question(this, "Zaproszenie", "Królik " + tresc + " zaprasza do gry. Akceptujesz?",
+                                               QMessageBox::Yes|QMessageBox::No);
+                 if (reply == QMessageBox::Yes) {
+                     wyslij("#4;1&");
+                     cout << "Challange accepted" <<endl;
+                 } else {
+                     wyslij("#4;0&");
+                     cout << ":(" << endl;
+                 }
+                 break;
+            }
+            case 4:
+            {
+                (tresc=="0") ? odp_zaproszenie=0 : odp_zaproszenie=1;
+                break;
             }
             default: break;
         }
