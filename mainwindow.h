@@ -27,9 +27,6 @@ public:
     void koniec_gry();
 public slots:
     void ruch();
-    void write();
-    void writeLogin(std::string imie);
-    void readData();
 //    void displayError(QAbstractSocket::SocketError socketError);
 
 
