@@ -463,11 +463,45 @@ void MainWindow::writeLogin(string imie)
         delete[] komunikat;
     }
 }
+string dlugi_tekst="#0;1&sdfasfsa#3;hahaha&#4221";
+QByteArray scalanie()
+{
+    string komunikat="";
+    int i=0,usun=0;
+    bool zapisuj=false, poprawny=false;
+    for(int i=0; i<dlugi_tekst.size(); i++)
+    {
+        if(dlugi_tekst[i]=='&' && zapisuj == true)
+        {
+            poprawny=true;
+            usun=i+1;
+            break;
+        }
+        if (zapisuj==true)
+            komunikat+=dlugi_tekst[i];
+        if (dlugi_tekst[i]=='#')
+        {
+            zapisuj=true;
+        }
+    }
+    if(poprawny==true)
+    {
+        dlugi_tekst.erase(0,usun);
+        cout << "Komunikat: " << komunikat << endl;
+        poprawny=false;
+    }
+    QByteArray byteArray(komunikat.c_str(), komunikat.length());
+    return byteArray;
+
+}
 
 void MainWindow::readData()
 {
      QByteArray temp = tcpSocket->read(10);
-     QList<QByteArray> qlist = temp.split(';');
+     dlugi_tekst+=temp.toStdString();
+     QByteArray komunikat = scalanie();
+
+     QList<QByteArray> qlist = komunikat.split(';');
 
      int poz_x = qlist[0].toInt();
      int poz_y = qlist[1].toInt();
