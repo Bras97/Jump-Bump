@@ -10,7 +10,7 @@ using namespace std;
 string plec ="M";
 string imie = "";
 string dlugi_tekst="";
-QByteArray lista_graczy="";
+QByteArray lista_graczy;
 int odp_polaczono=-1;
 int odp_lista=-1;
 int port = 1234;
@@ -93,37 +93,22 @@ void Menu::on_polaczButton_clicked()
             {
                 QMessageBox::information(this,"Błąd", "Użytkownik z taką nazwą już istnieje");
             }
-            else if(odp_polaczono==1)
-            {
-                write(1,imie);
-                do
-                {
-                    qApp->processEvents();
-                }
-                while(odp_lista==-1);
-                ui->polaczButton->setEnabled(false);
-                ui->imieText->setEnabled(false);
-                ui->plecM->setEnabled(false);
-                ui->plecK->setEnabled(false);
-                ui->listaGraczy->setEnabled(true);
-                ui->listaGraczy->setStyleSheet("background-color: white;");
-                ui->odswiezButton->setEnabled(true);
 
-                qInfo() << lista_graczy;
-                if(lista_graczy!="")
-                {
-                    QList<QByteArray> lista_graczy_podzielona=lista_graczy.split(':');
-                    for(int i=0; i<lista_graczy_podzielona.size(); i++)
-                        ui->listaGraczy->addItem(lista_graczy_podzielona[i]);
-                }
-                else
-                    QMessageBox::information(this,"Informacja", "Nie ma jeszcze żadnego gracza. Poczekaj chwilę");
-            }
+            ui->polaczButton->setEnabled(false);
+            ui->imieText->setEnabled(false);
+            ui->plecM->setEnabled(false);
+            ui->plecK->setEnabled(false);
+            ui->listaGraczy->setEnabled(true);
+            ui->listaGraczy->setStyleSheet("background-color: white;");
+            ui->odswiezButton->setEnabled(true);
+
             odp_polaczono=-1;
             odp_lista=-1;
         }
     }
 }
+
+
 
 void Menu::on_listaGraczy_clicked(const QModelIndex &index)
 {
@@ -223,7 +208,7 @@ void Menu::readData()
             case 1:
             {
                  cout << "Tresc: " << tresc.toStdString() <<endl;
-                 lista_graczy = QByteArray(tresc);
+                 lista_graczy = tresc;
                  cout <<"Lista graczy: " << lista_graczy.toStdString()<< endl;
                  odp_lista=0;
                  break;
@@ -245,3 +230,27 @@ char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the numb
     return wspolrzedne;
 }
 
+
+void Menu::on_odswiezButton_clicked()
+{
+    write(1,imie);
+    do
+    {
+        qApp->processEvents();
+    }
+    while(odp_lista==-1);
+
+    ui->listaGraczy->clear();
+    qInfo() << lista_graczy << "///" << lista_graczy.size();
+    if(lista_graczy.size() > 0)
+    {
+        QList<QByteArray> lista_graczy_podzielona=lista_graczy.split(':');
+        for(int i=0; i<lista_graczy_podzielona.size(); i++)
+            ui->listaGraczy->addItem(lista_graczy_podzielona[i]);
+    }
+    else
+        QMessageBox::information(this,"Informacja", "Nie ma jeszcze żadnego gracza. Poczekaj chwilę");
+
+    lista_graczy.clear();
+    odp_lista = -1;
+}

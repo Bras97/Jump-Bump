@@ -31,6 +31,8 @@ private slots:
 
     void wyslij(std::string temp);
 
+    void on_odswiezButton_clicked();
+
 public slots:
     void write(int polecenie, std::string imie);
     void readData();
