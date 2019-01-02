@@ -112,13 +112,13 @@ void funcLogin(Player *player) {
 void funcList(Player *player) {
     char buffer[BUFFER];
 
-    string s = "#1";
+    string s = "#1;";
     strcpy(buffer, s.c_str());
-    write(player->fd, buffer, 2);
+    write(player->fd, buffer, 3);
     memset(buffer, 0, BUFFER);
     for (auto &p : *player->players_ptr) {
         if ((!p->login.empty()) && p->fd != player->fd) {
-            string message = ';' + p->login;
+            string message = p->login + ':';
             strcpy(buffer, message.c_str());
             write(player->fd, buffer, message.size());
             memset(buffer, 0, BUFFER);
