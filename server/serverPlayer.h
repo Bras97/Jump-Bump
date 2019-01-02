@@ -11,6 +11,7 @@ void *playerPlays (void *t_data);
 
 void funcLogin(Player *player);
 void funcList(Player *player);
+void funcSendUnavailable(Player *player);
 void funcInvite(Player *player);
 void funcIsInvited(Player *player);
 

@@ -19,23 +19,18 @@
 class Player {
 public:
     std::string login;
+    bool run;
     bool logged;
     bool playing;
     std::string command;
     std::string buf;
     int fd;
-    int opponentFd;
+    Player *opponent;
     std::list <Player *> *players_ptr;
     pthread_mutex_t *mutex;
 
-    Player() {
-        login.clear();
-        buf.clear();
-        command.clear();
-        logged = false;
-        playing = false;
-    }
-    virtual ~Player() {}
+    Player();
+    virtual ~Player();
 };
 
 class Game {

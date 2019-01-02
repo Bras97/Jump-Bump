@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-
+    std::cout << "Serwer\n";
     while(1)
     {
 
