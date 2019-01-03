@@ -10,6 +10,7 @@ using namespace std;
 string plec ="M";
 string imie = "";
 string dlugi_tekst="";
+QString przeciwnik="";
 QByteArray lista_graczy;
 int odp_czy_wolny=-1;
 int odp_polaczono=-1;
@@ -113,7 +114,7 @@ void Menu::on_listaGraczy_clicked(const QModelIndex &index)
 
 void Menu::on_dolaczButton_clicked()
 {
-    QString przeciwnik=ui->listaGraczy->currentItem()->text();
+    przeciwnik=ui->listaGraczy->currentItem()->text();
     write(2,przeciwnik.toStdString());
     do
     {
@@ -138,16 +139,11 @@ void Menu::on_dolaczButton_clicked()
         else if(odp_zaproszenie==1)
         {
 
-            QMessageBox::information(this,"Informacja", przeciwnik + " przyjął zaproszenie. Kliknij OK by rozpocząć.");
-            this->setVisible(false);
-            this->setEnabled(false);
-            this->close();
+            //QMessageBox::information(this,"Informacja", przeciwnik + " przyjął zaproszenie. Kliknij OK by rozpocząć.");
+            rozpocznijGre();
 
         }
     }
-    /*MainWindow *game;
-    game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), this);
-    game->show();*/
 }
 
 void Menu::wyslij(string temp)
@@ -173,6 +169,8 @@ void Menu::write(int polecenie, string nick)
             case 2: wyslij(string("#2;" + nick + "&"));
                     break;
             case 3: wyslij(string("#3;" + nick + "&"));
+                    break;
+            case 4: wyslij(string("#4;" + nick + "&"));
                     break;
             default: break;
         }
@@ -247,10 +245,12 @@ void Menu::readData()
                  reply = QMessageBox::question(this, "Zaproszenie", "Królik " + tresc + " zaprasza do gry. Akceptujesz?",
                                                QMessageBox::Yes|QMessageBox::No);
                  if (reply == QMessageBox::Yes) {
-                     wyslij("#4;1&");
+                     przeciwnik=tresc;
+                     write(4,"1");
                      cout << "Challange accepted" <<endl;
+                     rozpocznijGre();
                  } else {
-                     wyslij("#4;0&");
+                     write(4,"0");
                      cout << ":(" << endl;
                  }
                  break;
@@ -292,7 +292,7 @@ void Menu::on_odswiezButton_clicked()
     if(lista_graczy.size() > 0)
     {
         QList<QByteArray> lista_graczy_podzielona=lista_graczy.split(':');
-        for(int i=0; i<lista_graczy_podzielona.size(); i++)
+        for(int i=0; i<lista_graczy_podzielona.size()-1; i++)
             ui->listaGraczy->addItem(lista_graczy_podzielona[i]);
     }
     else
@@ -300,4 +300,14 @@ void Menu::on_odswiezButton_clicked()
 
     lista_graczy.clear();
     odp_lista = -1;
+}
+
+void Menu::rozpocznijGre()
+{
+    this->setVisible(false);
+    this->setEnabled(false);
+    this->close();
+    MainWindow *game;
+    game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
+    game->show();
 }

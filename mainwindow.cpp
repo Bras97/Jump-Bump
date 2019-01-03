@@ -18,21 +18,22 @@ bool polecenie[8];
 int poz[4];
 int poz2[4];
 int PREDKOSC = 5;
-int wgore,wdol,wgore2,wdol2;
+int wgore,wdol;
 int ILE_BLOKOW=17;
-int LIMIT_GRY=3;
+int LIMIT_GRY=5;
+int ile_zgonow=0;
 QLabel *bloki[17];
 int ktory=0, ktory2=0;
-int wynik1=0,wynik2=0;
-bool spada=true, spada2=true;
+int wynik1=0;
+bool spada=true;
 int respawn[8][2];
-string w="",w2="";
+string w="";
 bool zbity2=false, zbity=false;
 
 //string host = "127.0.0.1";
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
-MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *parent) :
+MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &przeciwnik, QWidget *parent) :
     QMainWindow(parent),
 
     ui(new Ui::MainWindow)
@@ -43,8 +44,6 @@ MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *pa
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
-    QString plec="M";
-    QString imie="Adam";
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -84,8 +83,9 @@ MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *pa
         krolik_l2="border-image: url(:/new/prefix1/rabbit2_icon_l2.png);";
         krolik_r1="border-image: url(:/new/prefix1/rabbit2_icon_r1.png);";
         krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
+        QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
         ui->player_1->setStyleSheet(krolik_r2);
-        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_r1.png");
+        ui->player_2->setStyleSheet(temp);
     }
     else
     {
@@ -100,6 +100,7 @@ MainWindow::MainWindow(/*const QString &plec, const QString &imie, */QWidget *pa
     }
     //nadanie imion
     ui->name_1->setText(imie);
+    ui->name_2->setText(przeciwnik);
 }
 
 MainWindow::~MainWindow()
@@ -144,8 +145,11 @@ void delay()
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
-void MainWindow::koniec_gry()
+void MainWindow::koniec_gry(QString napis)
 {
+    ui->game_over->setVisible(1);
+    string napis_koncowy = string("WYGRYWA: ");
+    ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
     delay();
     this->close();
     Menu *menu;
@@ -236,20 +240,11 @@ void MainWindow::ruch()
             ui->score_1->setText(QString::fromStdString(w));
             if (wynik1>LIMIT_GRY)
             {
-
-                ui->game_over->setVisible(1);
                 QString napis = ui->name_1->text();
-                string napis_koncowy = string("WYGRYWA: ");
-                ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
-                koniec_gry();
-                //ui->game_over->setAlignment(1);
+                koniec_gry(napis);
             }
-            zbity2=true;
-            srand(time(NULL));
-            int spawn= rand() % 8;
-            ui->player_2->setGeometry(respawn[spawn][0],respawn[spawn][1],ui->player_2->width(),ui->player_2->height());
         }
-        if(zbity==false)
+        else if(zbity==false)
         {
             skok++;
             if(kolizja(poz[0], poz[1], poz[2]+skok, poz[3]+skok))
@@ -264,10 +259,28 @@ void MainWindow::ruch()
                 spada=true;
             }
         }
-        else zbity=false;
+    }
+    //jesli sygnal ze zostalem zbity
+    if(zbity==true)
+    {
+        ile_zgonow++;
+        if (ile_zgonow<10)
+            w = "0" + to_string(ile_zgonow);
+        else
+            w = to_string(ile_zgonow);
+        ui->score_2->setText(QString::fromStdString(w));
+        if(ile_zgonow>=LIMIT_GRY)
+        {
+            QString napis = ui->name_2->text();
+            koniec_gry(napis);
+        }
+        srand(time(NULL));
+        int spawn= rand() % 8;
+        ui->player_1->setGeometry(respawn[spawn][0],respawn[spawn][1],ui->player_1->width(),ui->player_1->height());
+        zbity=false;
     }
 
-
+/*
 
     //lewo
     if(polecenie[4]==true)
@@ -363,7 +376,7 @@ void MainWindow::ruch()
         }
         else zbity2=false;
     }
-
+*/
     //write();
 }
 
@@ -385,7 +398,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         polecenie[2]=true;
         polecenie[3]=false;
     }
-
+/*
     if(event->key() == Qt::Key_A)
     {
         polecenie[4]=true;
@@ -400,7 +413,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
         polecenie[6]=true;
         polecenie[7]=false;
-    }
+    }*/
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
@@ -413,6 +426,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         polecenie[1]=false;
     }
+    /*
     if(event->key() == Qt::Key_A)
     {
         polecenie[4]=false;
@@ -420,7 +434,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     if(event->key() == Qt::Key_D)
     {
         polecenie[5]=false;
-    }
+    }*/
 }
 
 

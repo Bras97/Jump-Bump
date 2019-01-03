@@ -32,6 +32,7 @@ private slots:
     void wyslij(std::string temp);
 
     void on_odswiezButton_clicked();
+    void rozpocznijGre();
 
 public slots:
     void write(int polecenie, std::string imie);
