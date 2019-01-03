@@ -18,16 +18,24 @@ Player::Player() {
     logged = false;
     playing = false;
     opponent = nullptr;
+    playerMutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
 Player::~Player() {
     std::cout << "delete player " << fd << '\n';
     players_ptr->remove(this);
-    pthread_mutex_unlock(mutex);
+    pthread_mutex_unlock(serverMutex);
     if(opponent != nullptr) {
         char buffer[4];
         string message = "#-1&";
         strcpy(buffer, message.c_str());
         write(opponent->fd, buffer, message.size());
     }
+}
+
+Game::Game(Player *players[2]) {
+    player[0] = players[0];
+    player[1] = players[1];
+    score[0] = 0;
+    score[1] = 0;
 }

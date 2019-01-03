@@ -126,7 +126,6 @@ void Menu::on_dolaczButton_clicked()
         QMessageBox::information(this,"Informacja", "Królik "  + przeciwnik + " skacze teraz z kimś innym. Wybierz innego gracza");
     else if(odp_czy_wolny==1)
     {
-        write(3,przeciwnik.toStdString());
         do
         {
             qApp->processEvents();
@@ -246,18 +245,27 @@ void Menu::readData()
                                                QMessageBox::Yes|QMessageBox::No);
                  if (reply == QMessageBox::Yes) {
                      przeciwnik=tresc;
-                     write(4,"1");
+                     write(3,string(tresc+";1"));
                      cout << "Challange accepted" <<endl;
                      rozpocznijGre();
                  } else {
-                     write(4,"0");
+                     write(3,string(tresc+";0"));
                      cout << ":(" << endl;
                  }
                  break;
             }
             case 4:
             {
-                (tresc=="0") ? odp_zaproszenie=0 : odp_zaproszenie=1;
+                qInfo() << "4";
+                if(tresc=="0") {
+                    write(4,"0");
+                    odp_zaproszenie=0;
+                }
+                else {
+                    write(4,"1");
+                    odp_zaproszenie=1;
+                    //rozpocznijGre();
+                }
                 break;
             }
             default: break;

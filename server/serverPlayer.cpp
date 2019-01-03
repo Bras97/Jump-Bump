@@ -13,13 +13,13 @@
 #include <string>
 #include <list>
 #include <iostream>
-#include "serverConstants.h"
+#include "serverGame.h"
 
 using namespace std;
 
-void getCommand(string *buf, Player *player) {
-    string newPart = *buf;
-    (*buf).clear();
+void getCommand(Player *player) {
+    string newPart = player->buf;
+    (player->buf).clear();
 
     if (newPart.empty()) {
         player->run = false;
@@ -32,41 +32,47 @@ void getCommand(string *buf, Player *player) {
             (player->command).append(newPart.substr(0, newPart.find(END) + 1));
             newPart = newPart.substr(newPart.find(END) + 1,
                                      newPart.size() - (newPart.find(END) + 2));
-            (*buf).append(newPart);
+            (player->buf).append(newPart);
         }
     }
 
     else {
 //        cout << "new\n";
-        (player->command).clear();
-        size_t startPoint = newPart.find(START);
-        size_t endPoint = newPart.find(END);
+        int startPoint = newPart.find(START);
+        int endPoint = newPart.find(END);
 //        cout << startPoint << " " << endPoint << " " << newPart.size() <<'\n';
 
-        if(startPoint == -1) {
-        }
+        if(startPoint == -1);
 
         else if(endPoint == -1) {
-            (player->command).append(newPart);
+            (player->buf).append(newPart.c_str());
         }
 
         else {
-            (player->command).append(newPart.substr(startPoint, endPoint + 1 - startPoint));
-            newPart = newPart.substr(endPoint+1, newPart.size()-(endPoint+1));
-            (*buf).append(newPart);
+            (player->command).append(newPart.substr(startPoint, endPoint - startPoint + 1));
+            if(endPoint < newPart.size() - 1) {
+                newPart = newPart.substr(endPoint + 1, newPart.size() - (endPoint + 1));
+                (player->buf).append(newPart);
+            }
         }
-//        cout << *command << " " << *buf << '\n';
     }
 
+    if(!player->buf.empty()){
+        player->buf.erase(player->buf.find('\r'));
+    }
+
+    cout << player->login << " ";
+    cout  << "c: " << player->command << " || buf: " << player->buf << " " <<  '\n';
+    
 
 }
 
 Player* getOpponent(Player *player){
-    size_t firstDelimiter = player->command.find(DELIMITER);
-    size_t secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
+    int firstDelimiter = player->command.find(DELIMITER);
 
     string opponentLogin = player->command.substr(firstDelimiter + 1,
                                                   player->command.size() - firstDelimiter - 2);
+
     Player *opponent = nullptr;
 
     for (auto &p : *player->players_ptr) {
@@ -75,6 +81,43 @@ Player* getOpponent(Player *player){
         }
     }
     return opponent;
+}
+
+void getPosition(Player *player) {
+    int firstDelimiter = player->command.find(DELIMITER);
+    int secondDelimiter = player->command.find(DELIMITER, firstDelimiter+1);
+    string pos1 = player->command.substr(firstDelimiter + 1,
+                                                  secondDelimiter - firstDelimiter - 2);
+    string pos2 = player->command.substr(secondDelimiter + 1,
+                                         player->command.size() - secondDelimiter - 2);
+
+    player->position[0] = stoi(pos1);
+    player->position[1] = stoi(pos2);
+}
+
+void startGame(Player *player) {
+    cout << "preparing to start a game" << '\n';
+
+    pthread_mutex_t mutex_game = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_lock(&mutex_game);
+
+    struct thread_data_game * game_data = new thread_data_game;
+    game_data->player[0] = player;
+    game_data->player[1] = player->opponent;
+    game_data->gameMutex = &mutex_game;
+    pthread_t thread1;
+    cout << player->login << " " << game_data->player[0]->login << '\n';
+    int create_result = pthread_create(&thread1, NULL, playGame, (void *)game_data);
+
+    if (create_result){
+        pthread_mutex_unlock(&mutex_game);
+        printf("Błąd przy próbie utworzenia wątku, kod błędu: %d\n", create_result);
+        exit(-1);
+    }
+
+    pthread_mutex_lock(&mutex_game);
+    delete game_data;
+    pthread_mutex_unlock(&mutex_game);
 }
 
 void funcLogin(Player *player) {
@@ -171,7 +214,7 @@ void funcInvite(Player *player) {
             memset(buffer, 0, BUFFER);
             read(player->fd, buffer, BUFFER);
             player->buf.append(string(buffer));
-            getCommand(&player->buf, player);
+            getCommand(player);
 
             if(!player->command.empty()) {
                 if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
@@ -196,9 +239,12 @@ void funcInvite(Player *player) {
 
         //zgodzil sie na gre
         if (reply == '1') {
+            player->opponent= opponent;
+
+            // start watku gry (do kolizji)
+            startGame(player);
 
             player->playing = true;
-            player->opponent= opponent;
 
         }
     }
@@ -207,8 +253,8 @@ void funcInvite(Player *player) {
 void funcIsInvited(Player *player) {
     char buffer[BUFFER];
 
-    size_t firstDelimiter = player->command.find(DELIMITER);
-    size_t secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
+    int firstDelimiter = player->command.find(DELIMITER);
+    int secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
 
     string opponentLogin = player->command.substr(firstDelimiter + 1,
                                                   secondDelimiter - firstDelimiter - 1);
@@ -231,9 +277,6 @@ void funcIsInvited(Player *player) {
             player->opponent = opponent;
             player->playing = true;
 
-            // start watku gry (do kolizji)
-            //startGame(&player, &opponent);
-
         } else {
             string message = "#4;0&";
             strcpy(buffer, message.c_str());
@@ -249,17 +292,15 @@ void *playerPlays (void *t_data)
     pthread_detach(pthread_self());
     cout << "player ";
 
-
     auto *player = new Player();
     player->fd = ((struct thread_data*)(t_data))->fd;
     player->players_ptr = ((struct thread_data*)(t_data))->players_ptr;
     player->players_ptr->push_back(player);
-    player->mutex = ((struct thread_data*)(t_data))->mutex;
-
+    player->serverMutex = ((struct thread_data*)(t_data))->mutex;
 
     cout << player->fd << '\n';
 
-    pthread_mutex_unlock(player->mutex);
+    pthread_mutex_unlock(player->serverMutex);
 
     char buffer[BUFFER];
 
@@ -268,7 +309,7 @@ void *playerPlays (void *t_data)
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
         player->buf.append(string(buffer));
-        getCommand(&player->buf, player);
+        getCommand(player);
 
         if(!player->command.empty()) {
             if(player->command.at(0) == START && player->command.at(player->command.size()-1) == END) {
@@ -288,7 +329,7 @@ void *playerPlays (void *t_data)
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
         player->buf.append(string(buffer));
-        getCommand(&player->buf, player);
+        getCommand(player);
 
         if(!player->command.empty()) {
             if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
@@ -320,16 +361,20 @@ void *playerPlays (void *t_data)
         memset(buffer, 0, BUFFER);
         read(player->fd, buffer, BUFFER);
         player->buf.append(string(buffer));
-        getCommand(&player->buf, player);
+        getCommand(player);
 
-        if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
+        if(!player->command.empty()) {
+            if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
 
-            if(player->command.at(1) == '9') {
-                write(player->opponent->fd, buffer, BUFFER);
+                if (player->command.at(1) == '9') {
+                    pthread_mutex_lock(&player->playerMutex);
+                    getPosition(player);
+                    pthread_mutex_unlock(&player->playerMutex);
+                }
+
+                player->command.clear();
+
             }
-
-            player->command.clear();
-
         }
 
     }

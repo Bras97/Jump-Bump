@@ -27,7 +27,9 @@ public:
     int fd;
     Player *opponent;
     std::list <Player *> *players_ptr;
-    pthread_mutex_t *mutex;
+    pthread_mutex_t *serverMutex;
+    pthread_mutex_t playerMutex;
+    int position[2];
 
     Player();
     virtual ~Player();
@@ -35,15 +37,10 @@ public:
 
 class Game {
 public:
-    Player *player1;
-    Player *player2;
-    int score_player1;
-    int score_player2;
+    Player *player[2];
+    int score[2];
 
-    Game() {
-            score_player1 = 0;
-            score_player2 = 0;
-    }
+    explicit Game(Player *players[2]);
     virtual ~Game() {}
 };
 
@@ -52,12 +49,13 @@ struct thread_data
     int fd;
     std::list <Player *> *players_ptr;
     pthread_mutex_t *mutex;
+    std::list <pthread_mutex_t*> *playersMutex;
 };
 
 struct thread_data_game
 {
-    Player *player1;
-    Player *player2;
+    Player *player[2];
+    pthread_mutex_t *gameMutex;
 };
 
 #endif //JUMP_BUMP_CONSTANTS_H
