@@ -215,7 +215,6 @@ void Menu::readData()
          dlugi_tekst+=temp.toStdString();
 
          komunikat = scalanie();
-         cout << komunikat.toStdString() <<endl;
          QList<QByteArray> qlist = komunikat.split(';');
 
          int numer = qlist[0].toInt();

@@ -87,7 +87,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
         krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
         QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
         ui->player_1->setStyleSheet(krolik_r2);
-        ui->player_2->setStyleSheet(temp);
+        //ui->player_2->setStyleSheet(krolik_r2);
     }
     else
     {
@@ -98,7 +98,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
         ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
         ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
         ui->player_1->setStyleSheet(krolik_r1);
-        ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+        //ui->player_2->setStyleSheet(krolik_r1);
     }
     //nadanie imion
     ui->name_1->setText(imie);
@@ -153,10 +153,9 @@ void MainWindow::koniec_gry(QString napis)
     string napis_koncowy = string("WYGRYWA: ");
     ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
     delay();
-    this->close();
-    Menu *menu;
-    menu = new Menu();
-    menu->show();
+    menu->setVisible(true);
+    menu->setEnabled(true);
+    this->destroy();
 
 }
 
@@ -176,7 +175,7 @@ void MainWindow::ruch()
     poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
     poz2[2]=ui->player_2->y(); //góra
     poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
-    ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+    //ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
 
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());
 
@@ -243,7 +242,7 @@ void MainWindow::ruch()
             else
                 w = to_string(wynik1);
             ui->score_1->setText(QString::fromStdString(w));
-            if (wynik1>LIMIT_GRY)
+            if (wynik1>=LIMIT_GRY)
             {
                 QString napis = ui->name_1->text();
                 koniec_gry(napis);
