@@ -7,6 +7,10 @@
 
 #include "serverConstants.h"
 
+void checkCollision(Game *game);
+void getPoint(Game *game, int player_number);
+void newPosition(Player *player);
+void startGame(Game *game);
 void *playGame(void *t_data);
 
 #endif //SERVER_SERVERGAME_H

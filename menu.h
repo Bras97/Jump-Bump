@@ -15,7 +15,8 @@ class Menu : public QDialog
 public:
     explicit Menu(QWidget *parent = 0);
     ~Menu();
-    int pozycje[2];
+    int pozycjeDrugiego[2];
+    int pozycjeMoje[2];
 
 private slots:
     void on_plecM_clicked();

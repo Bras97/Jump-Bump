@@ -20,7 +20,7 @@ int poz2[4];
 int PREDKOSC = 5;
 int wgore,wdol;
 int ILE_BLOKOW=17;
-int LIMIT_GRY=5;
+int LIMIT_GRY=500;
 int ile_zgonow=0;
 QLabel *bloki[17];
 int ktory=0, ktory2=0;
@@ -64,14 +64,6 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     bloki[14] = ui->block_15;
     bloki[15] = ui->block_16;
     bloki[16] = ui->block_17;
-    respawn[0][0]=0; respawn[0][1]=20;
-    respawn[1][0]=530; respawn[1][1]=390;
-    respawn[2][0]=650; respawn[2][1]=410;
-    respawn[3][0]=690; respawn[3][1]=30;
-    respawn[4][0]=250; respawn[4][1]=10;
-    respawn[5][0]=310; respawn[5][1]=220;
-    respawn[6][0]=100; respawn[6][1]=420;
-    respawn[7][0]=0; respawn[7][1]=250;
 
     for(int i=0; i<8; i++)
         polecenie[i]=false;
@@ -125,19 +117,19 @@ bool MainWindow::kolizja(int poz0, int poz1,int poz2,int poz3)
     return false;
 }
 
-bool MainWindow::zderzenie(int poz0, int poz1,int poz2,int poz3, int pozd0, int pozd1,int pozd2,int pozd3)
-{
-    for(int i=0; i<ILE_BLOKOW; i++)
-    {
-        if( ( poz0 <= pozd1 ) && ( poz1 >= pozd0 ) &&
-            ( poz2 <= pozd3 ) && ( poz3 >= pozd2 ) )
-        {
-            if(poz3<=pozd3-15 && poz1>=pozd0+10 && poz0<=pozd1-10)
-                return true;
-        }
-    }
-    return false;
-}
+//bool MainWindow::zderzenie(int poz0, int poz1,int poz2,int poz3, int pozd0, int pozd1,int pozd2,int pozd3)
+//{
+//    for(int i=0; i<ILE_BLOKOW; i++)
+//    {
+//        if( ( poz0 <= pozd1 ) && ( poz1 >= pozd0 ) &&
+//            ( poz2 <= pozd3 ) && ( poz3 >= pozd2 ) )
+//        {
+//            if(poz3<=pozd3-15 && poz1>=pozd0+10 && poz0<=pozd1-10)
+//                return true;
+//        }
+//    }
+//    return false;
+//}
 
 void delay()
 {
@@ -164,22 +156,30 @@ void MainWindow::ruch()
     if((ui->player_1->x()>750) || (ui->player_1->x()<0) || (ui->player_1->y()>500))
             ui->player_1->setGeometry(0,0,ui->player_1->width(),ui->player_1->height());
 
-
-    poz[0]=ui->player_1->x(); //lewo
-    poz[1]=ui->player_1->x() + ui->player_1->width(); //prawo
-    poz[2]=ui->player_1->y(); //góra
-    poz[3]=ui->player_1->y() + ui->player_1->height(); //dół
+    if(menu->pozycjeMoje[0] >= 0) {
+        poz[0] = menu->pozycjeMoje[0];
+        poz[2] = menu->pozycjeMoje[1];
+        menu->pozycjeMoje[0] = -1;
+    }
+    else {
+        poz[0]=ui->player_1->x(); //lewo
+        poz[2]=ui->player_1->y(); //góra
+    }
+    poz[1]=poz[0] + ui->player_1->width(); //prawo
+    poz[3]=poz[2] + ui->player_1->height(); //dół
 
 //    poz2[0]=ui->player_2->x(); //lewo
 //    poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
 //    poz2[2]=ui->player_2->y(); //góra
 //    poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
-    poz2[0] = menu->pozycje[0];
+    poz2[0] = menu->pozycjeDrugiego[0];
     poz2[1]= poz2[0]  + ui->player_2->width(); //prawo
-    poz2[2] = menu->pozycje[1];
+    poz2[2] = menu->pozycjeDrugiego[1];
     poz2[3]= poz2[2] + ui->player_2->height(); //dół
     //ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+    qInfo() << poz[0] << " " << poz[2] << " || " << poz2[0] << " " << poz2[2];
 
+    ui->player_1->setGeometry(poz[0],poz[2],ui->player_1->width(),ui->player_1->height());
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());
 
     //lewo
@@ -236,22 +236,22 @@ void MainWindow::ruch()
     }
     //spadanie
     if(polecenie[3]==true)
-    {        
-        if(zderzenie(poz[0], poz[1], poz[2], poz[3], poz2[0], poz2[1], poz2[2], poz2[3]))
-        {
-            wynik1++;
-            if (wynik1<10)
-                w = "0" + to_string(wynik1);
-            else
-                w = to_string(wynik1);
-            ui->score_1->setText(QString::fromStdString(w));
-            if (wynik1>=LIMIT_GRY)
-            {
-                QString napis = ui->name_1->text();
-                koniec_gry(napis);
-            }
-        }
-        else if(zbity==false)
+    {
+//        if(zderzenie(poz[0], poz[1], poz[2], poz[3], poz2[0], poz2[1], poz2[2], poz2[3]))
+//        {
+//            wynik1++;
+//            if (wynik1<10)
+//                w = "0" + to_string(wynik1);
+//            else
+//                w = to_string(wynik1);
+//            ui->score_1->setText(QString::fromStdString(w));
+//            if (wynik1>=LIMIT_GRY)
+//            {
+//                QString napis = ui->name_1->text();
+//                koniec_gry(napis);
+//            }
+//        }
+         if(zbity==false)
         {
             skok++;
             if(kolizja(poz[0], poz[1], poz[2]+skok, poz[3]+skok))
@@ -446,4 +446,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         polecenie[5]=false;
     }*/
 }
+
+
+
 

@@ -16,6 +16,10 @@
 #define END '&'
 #define BUFFER 20
 
+#define BUNNY_HEIGHT 40
+#define BUNNY_WIDTH 50
+
+
 class Player {
 public:
     std::string login;

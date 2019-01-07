@@ -18,6 +18,7 @@ int odp_zaproszenie=-1;
 int odp_lista=-1;
 int port = 1234;
 
+
 template<class T>
 bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
 {
@@ -33,6 +34,7 @@ Menu::Menu(QWidget *parent) :
 
     ui(new Ui::Menu)
 {
+    pozycjeMoje[0] = -1;
     ui->setupUi(this);
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QIODevice::readyRead, this, &Menu::readData);
@@ -275,18 +277,24 @@ void Menu::readData()
                     }
                     break;
                 }
-
-                 case 9:
-                 {
+             case 8:
+             {
     //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
-                    pozycje[0] = qlist[1].toInt();
-                    pozycje[1] = qlist[2].toInt();
-                    break;
-                 }
-                default: break;
-                }
-          }
+                pozycjeMoje[0] = qlist[1].toInt();
+                pozycjeMoje[1] = qlist[2].toInt();
+                break;
+             }
 
+             case 9:
+             {
+//                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                pozycjeDrugiego[0] = qlist[1].toInt();
+                pozycjeDrugiego[1] = qlist[2].toInt();
+                break;
+             }
+             default: break;
+             }
+         }
     }
     while(komunikat!="");
 
@@ -325,6 +333,7 @@ void Menu::rozpocznijGre()
     this->setVisible(false);
     this->setEnabled(false);
     this->close();
+
     MainWindow *game;
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
     game->show();
