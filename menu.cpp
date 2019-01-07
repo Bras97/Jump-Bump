@@ -200,11 +200,11 @@ QByteArray Menu::scalanie()
     if(poprawny==true)
     {
         dlugi_tekst.erase(0,usun);
+        //cout << "Komunikat: " << komunikat << endl;
         poprawny=false;
     }
     else
         komunikat="";
-    cout << "Komunikat: " << komunikat << endl;
     QByteArray byteArray(komunikat.c_str(), komunikat.length());
     return byteArray;
 

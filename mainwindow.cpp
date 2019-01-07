@@ -33,9 +33,9 @@ Menu *menu;
 //string host = "127.0.0.1";
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
+
 MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &przeciwnik, QWidget *parent) :
     QMainWindow(parent),
-
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -79,27 +79,25 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     polecenie[7]=true; //spadaj caly czas jak nie masz gruntu
 
     //wybor krolika
-    if(plec=="M")
+    rabbit_l1.load(":/new/prefix1/rabbit2_icon_l1.png");
+    rabbit_l2.load(":/new/prefix1/rabbit2_icon_l2.png");
+    rabbit_r1.load(":/new/prefix1/rabbit2_icon_r1.png");
+    rabbit_r2.load(":/new/prefix1/rabbit2_icon_r2.png");
+    rabbit_temp.load(":/new/prefix1/rabbit1_icon_r2.png");
+
+    //cout << plec << endl;
+
+    if(plec.toStdString()=="K")
     {
-        krolik_l1="border-image: url(:/new/prefix1/rabbit2_icon_l1.png);";
-        krolik_l2="border-image: url(:/new/prefix1/rabbit2_icon_l2.png);";
-        krolik_r1="border-image: url(:/new/prefix1/rabbit2_icon_r1.png);";
-        krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
-        QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
-        ui->player_1->setStyleSheet(krolik_r2);
-        ui->player_2->setStyleSheet(temp);
-    }
-    else
-    {
-        krolik_l1="border-image: url(:/new/prefix1/rabbit1_icon_l1.png);";
-        krolik_l2="border-image: url(:/new/prefix1/rabbit1_icon_l2.png);";
-        krolik_r1="border-image: url(:/new/prefix1/rabbit1_icon_r1.png);";
-        krolik_r2="border-image: url(:/new/prefix1/rabbit1_icon_r2.png);";
-        QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
+        rabbit_l1.load(":/new/prefix1/rabbit1_icon_l1.png");
+        rabbit_l2.load(":/new/prefix1/rabbit1_icon_l2.png");
+        rabbit_r1.load(":/new/prefix1/rabbit1_icon_r1.png");
+        rabbit_r2.load(":/new/prefix1/rabbit1_icon_r2.png");
+        rabbit_temp.load(":/new/prefix1/rabbit2_icon_r2.png");
+        ui->player_1->setPixmap(rabbit_l1);
+        ui->player_2->setPixmap(rabbit_temp);
         ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
         ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
-        ui->player_1->setStyleSheet(krolik_r1);
-        ui->player_2->setStyleSheet(temp);
     }
     //nadanie imion
     ui->name_1->setText(imie);
@@ -191,9 +189,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]-PREDKOSC-1, poz[1]-PREDKOSC-1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == krolik_l1)
-                    ui->player_1->setStyleSheet(krolik_l2);
-                else ui->player_1->setStyleSheet(krolik_l1);
+                if (ui->player_1->pixmap()->toImage() == rabbit_l1.toImage())
+                    ui->player_1->setPixmap(rabbit_l2);
+                else ui->player_1->setPixmap(rabbit_l1);
             ui->player_1->setGeometry(poz[0]-PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
@@ -207,9 +205,9 @@ void MainWindow::ruch()
         {
             if(!kolizja(poz[0]+PREDKOSC+1, poz[1]+PREDKOSC+1, poz[2], poz[3]))
             {
-                if (ui->player_1->styleSheet() == krolik_r1)
-                    ui->player_1->setStyleSheet(krolik_r2);
-                else ui->player_1->setStyleSheet(krolik_r1);
+                if (ui->player_1->pixmap()->toImage() == rabbit_r1.toImage())
+                    ui->player_1->setPixmap(rabbit_r2);
+                else ui->player_1->setPixmap(rabbit_r1);
                 ui->player_1->setGeometry(poz[0]+PREDKOSC,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
             }
             else
