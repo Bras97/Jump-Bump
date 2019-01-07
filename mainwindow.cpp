@@ -174,6 +174,9 @@ void MainWindow::ruch()
     poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
     poz2[2]=ui->player_2->y(); //góra
     poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
+    ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+
+    ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());
 
     //lewo
     if(polecenie[0]==true)
