@@ -148,7 +148,7 @@ void Menu::wyslij(string temp)
     char * komunikat = new char[temp.size() + 1];
     copy(temp.begin(), temp.end(), komunikat);
     komunikat[temp.size()] = '\0';
-    qInfo() << komunikat << endl;
+    //qInfo() << komunikat << endl;
     tcpSocket->write(komunikat);
     delete[] komunikat;
 
@@ -200,9 +200,11 @@ QByteArray Menu::scalanie()
     if(poprawny==true)
     {
         dlugi_tekst.erase(0,usun);
-        cout << "Komunikat: " << komunikat << endl;
         poprawny=false;
     }
+    else
+        komunikat="";
+    cout << "Komunikat: " << komunikat << endl;
     QByteArray byteArray(komunikat.c_str(), komunikat.length());
     return byteArray;
 
@@ -210,75 +212,83 @@ QByteArray Menu::scalanie()
 
 void Menu::readData()
 {
-     QByteArray komunikat="";
+     QByteArray komunikat;
+     int numer;
+     do
+     {
+         numer=100; komunikat ="";
          QByteArray temp = tcpSocket->read(10);
          dlugi_tekst+=temp.toStdString();
 
          komunikat = scalanie();
-         QList<QByteArray> qlist = komunikat.split(';');
-
-         int numer = qlist[0].toInt();
-         QByteArray tresc = qlist[1];
-         switch(numer)
+         if(komunikat!="")
          {
-             case 0:
-            {
-                 (tresc=="0") ? odp_polaczono=0 : odp_polaczono=1;
-                 break;
-            }
-            case 1:
-            {
-                 lista_graczy = tresc;
-                 odp_lista=0;
-                 break;
-            }
-            case 2:
-            {
-                (tresc=="0") ? odp_czy_wolny=0 : odp_czy_wolny=1;
-                break;
-            }
-            case 3:
-            {
-                 QMessageBox::StandardButton reply;
-                 reply = QMessageBox::question(this, "Zaproszenie", "Królik " + tresc + " zaprasza do gry. Akceptujesz?",
-                                               QMessageBox::Yes|QMessageBox::No);
-                 if (reply == QMessageBox::Yes) {
-                     przeciwnik=tresc;
-                     write(3,string(tresc+";1"));
-                     cout << "Challange accepted" <<endl;
-                     rozpocznijGre();
-                 } else {
-                     write(3,string(tresc+";0"));
-                     cout << ":(" << endl;
-                 }
-                 break;
-            }
-            case 4:
-            {
-                qInfo() << "4";
-                if(tresc=="0") {
-                    write(4,"0");
-                    odp_zaproszenie=0;
-                }
-                else {
-                    write(4,"1");
-                    odp_zaproszenie=1;
-                    //rozpocznijGre();
-                }
-                break;
-            }
+             QList<QByteArray> qlist = komunikat.split(';');
 
-             case 9:
+             int numer = qlist[0].toInt();
+             QByteArray tresc = qlist[1];
+             switch(numer)
              {
-//                qInfo() << "9 " << qlist[1] << " " << qlist[2];
-                pozycje[0] = qlist[1].toInt();
-                pozycje[1] = qlist[2].toInt();
-                break;
-             }
-        default: break;
-    }
+                 case 0:
+                {
+                     (tresc=="0") ? odp_polaczono=0 : odp_polaczono=1;
+                     break;
+                }
+                case 1:
+                {
+                     lista_graczy = tresc;
+                     odp_lista=0;
+                     break;
+                }
+                case 2:
+                {
+                    (tresc=="0") ? odp_czy_wolny=0 : odp_czy_wolny=1;
+                    break;
+                }
+                case 3:
+                {
+                     QMessageBox::StandardButton reply;
+                     reply = QMessageBox::question(this, "Zaproszenie", "Królik " + tresc + " zaprasza do gry. Akceptujesz?",
+                                                   QMessageBox::Yes|QMessageBox::No);
+                     if (reply == QMessageBox::Yes) {
+                         przeciwnik=tresc;
+                         write(3,string(tresc+";1"));
+                         cout << "Challange accepted" <<endl;
+                         rozpocznijGre();
+                     } else {
+                         write(3,string(tresc+";0"));
+                         cout << ":(" << endl;
+                     }
+                     break;
+                }
+                case 4:
+                {
+                    //qInfo() << "4";
+                    if(tresc=="0") {
+                        write(4,"0");
+                        odp_zaproszenie=0;
+                    }
+                    else {
+                        write(4,"1");
+                        odp_zaproszenie=1;
+                        //rozpocznijGre();
+                    }
+                    break;
+                }
 
-    //while(komunikat!="");
+                 case 9:
+                 {
+    //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                    pozycje[0] = qlist[1].toInt();
+                    pozycje[1] = qlist[2].toInt();
+                    break;
+                 }
+                default: break;
+                }
+          }
+
+    }
+    while(komunikat!="");
 
 }
 

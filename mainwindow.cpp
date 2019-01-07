@@ -87,7 +87,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
         krolik_r2="border-image: url(:/new/prefix1/rabbit2_icon_r2.png);";
         QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
         ui->player_1->setStyleSheet(krolik_r2);
-        //ui->player_2->setStyleSheet(krolik_r2);
+        ui->player_2->setStyleSheet(temp);
     }
     else
     {
@@ -95,10 +95,11 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
         krolik_l2="border-image: url(:/new/prefix1/rabbit1_icon_l2.png);";
         krolik_r1="border-image: url(:/new/prefix1/rabbit1_icon_r1.png);";
         krolik_r2="border-image: url(:/new/prefix1/rabbit1_icon_r2.png);";
+        QString temp="border-image: url(:/new/prefix1/rabbit1_icon_r1.png";
         ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
         ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
         ui->player_1->setStyleSheet(krolik_r1);
-        //ui->player_2->setStyleSheet(krolik_r1);
+        ui->player_2->setStyleSheet(temp);
     }
     //nadanie imion
     ui->name_1->setText(imie);

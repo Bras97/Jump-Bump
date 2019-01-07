@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui network widgets
-CONFIG += c++11
+CONFIG += c++11 warn_off
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
