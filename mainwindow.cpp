@@ -171,10 +171,14 @@ void MainWindow::ruch()
     poz[2]=ui->player_1->y(); //góra
     poz[3]=ui->player_1->y() + ui->player_1->height(); //dół
 
-    poz2[0]=ui->player_2->x(); //lewo
-    poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
-    poz2[2]=ui->player_2->y(); //góra
-    poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
+//    poz2[0]=ui->player_2->x(); //lewo
+//    poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
+//    poz2[2]=ui->player_2->y(); //góra
+//    poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
+    poz2[0] = menu->pozycje[0];
+    poz2[1]= poz2[0]  + ui->player_2->width(); //prawo
+    poz2[2] = menu->pozycje[1];
+    poz2[3]= poz2[2] + ui->player_2->height(); //dół
     //ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
 
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());

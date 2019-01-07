@@ -267,9 +267,17 @@ void Menu::readData()
                 }
                 break;
             }
-            default: break;
-        }
-    //}
+
+             case 9:
+             {
+//                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                pozycje[0] = qlist[1].toInt();
+                pozycje[1] = qlist[2].toInt();
+                break;
+             }
+        default: break;
+    }
+
     //while(komunikat!="");
 
 }

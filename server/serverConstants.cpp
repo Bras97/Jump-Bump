@@ -38,4 +38,9 @@ Game::Game(Player *players[2]) {
     player[1] = players[1];
     score[0] = 0;
     score[1] = 0;
+    positions[0][0] = 0;
+    positions[0][1] = 0;
+    positions[1][0] = 0;
+    positions[1][1] = 0;
+
 }

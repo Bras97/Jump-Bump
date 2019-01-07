@@ -39,6 +39,7 @@ class Game {
 public:
     Player *player[2];
     int score[2];
+    int positions[2][2];
 
     explicit Game(Player *players[2]);
     virtual ~Game() {}

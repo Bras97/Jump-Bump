@@ -25,16 +25,26 @@ void *playGame(void *data) {
 
         pthread_mutex_lock(&game->player[0]->playerMutex);
         pthread_mutex_lock(&game->player[1]->playerMutex);
+        string s;
 
-        string s = "#9;" + to_string(game->player[0]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
-        strcpy(buffer, s.c_str());
-        write(game->player[1]->fd, buffer, s.size());
+        if ((game->positions[0][0] != game->player[0]->position[0]) || (game->positions[0][1] != game->player[0]->position[1])) {
+            s = "#9;" + to_string(game->player[0]->position[0]) + ";" + to_string(game->player[0]->position[1]) + END;
+            strcpy(buffer, s.c_str());
+            write(game->player[1]->fd, buffer, s.size());
+            game->positions[0][0] = game->player[0]->position[0];
+            game->positions[0][1] = game->player[0]->position[1];
+        }
 
-        s.clear();
-        memset(buffer, 0, BUFFER);
-        s = "#9;" + to_string(game->player[1]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
-        strcpy(buffer, s.c_str());
-        write(game->player[0]->fd, buffer, s.size());
+        if ((game->positions[1][0] != game->player[1]->position[0]) || (game->positions[1][1] != game->player[1]->position[1])) {
+            s.clear();
+            memset(buffer, 0, BUFFER);
+            s = "#9;" + to_string(game->player[1]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
+            strcpy(buffer, s.c_str());
+            write(game->player[0]->fd, buffer, s.size());
+            game->positions[1][0] = game->player[1]->position[0];
+            game->positions[1][1] = game->player[1]->position[1];
+        }
+
 
         pthread_mutex_unlock(&game->player[0]->playerMutex);
         pthread_mutex_unlock(&game->player[1]->playerMutex);

@@ -58,7 +58,10 @@ void getCommand(Player *player) {
     }
 
     if(!player->buf.empty()){
-        player->buf.erase(player->buf.find('\r'));
+        int pos = player->buf.find('\r');
+        if (pos <= player->buf.size()) {
+            player->buf.erase();
+        }
     }
 
 //    cout << player->login << " ";
@@ -84,6 +87,7 @@ Player* getOpponent(Player *player){
 }
 
 void getPosition(Player *player) {
+    pthread_mutex_lock(&player->playerMutex);
     int firstDelimiter = player->command.find(DELIMITER);
     int secondDelimiter = player->command.find(DELIMITER, firstDelimiter+1);
     string pos1 = player->command.substr(firstDelimiter + 1,
@@ -93,6 +97,7 @@ void getPosition(Player *player) {
 //    cout << pos1 << " " << pos2 << '\n';
     player->position[0] = stoi(pos1);
     player->position[1] = stoi(pos2);
+    pthread_mutex_unlock(&player->playerMutex);
 }
 
 void startGame(Player *player) {
@@ -367,9 +372,7 @@ void *playerPlays (void *t_data)
             if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
 
                 if (player->command.at(1) == '9') {
-                    pthread_mutex_lock(&player->playerMutex);
                     getPosition(player);
-                    pthread_mutex_unlock(&player->playerMutex);
                 }
 
                 player->command.clear();
