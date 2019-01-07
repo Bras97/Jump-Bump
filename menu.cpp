@@ -18,8 +18,6 @@ int odp_zaproszenie=-1;
 int odp_lista=-1;
 int port = 1234;
 
-static inline char* IntToChar(qint16 poz_x, qint16 poz_y);
-
 template<class T>
 bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
 {
@@ -171,6 +169,8 @@ void Menu::write(int polecenie, string nick)
                     break;
             case 4: wyslij(string("#4;" + nick + "&"));
                     break;
+            case 9: wyslij(string("#9;" + nick + "&"));
+                    break;
             default: break;
         }
 
@@ -276,14 +276,7 @@ void Menu::readData()
 }
 
 
-char* IntToChar(qint16 poz_x, qint16 poz_y) //Use qint32 to ensure that the number have 4 bytes
-{
-    string temp = to_string(poz_x) + ';' + to_string(poz_y);
-    char * wspolrzedne = new char[temp.size() + 1];
-    copy(temp.begin(), temp.end(), wspolrzedne);
-    wspolrzedne[temp.size()] = '\0';
-    return wspolrzedne;
-}
+
 
 
 void Menu::on_odswiezButton_clicked()

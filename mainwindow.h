@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QtNetwork>
 #include <string>
+#include <iostream>
 
 namespace Ui {
 class MainWindow;

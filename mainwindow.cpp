@@ -29,7 +29,7 @@ bool spada=true;
 int respawn[8][2];
 string w="";
 bool zbity2=false, zbity=false;
-
+Menu *menu;
 //string host = "127.0.0.1";
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
 
@@ -44,6 +44,8 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
     ui->game_over->setVisible(0);
+
+    menu = qobject_cast<Menu *>(parent);
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -283,6 +285,9 @@ void MainWindow::ruch()
         zbity=false;
     }
 
+    string pozycje = to_string(poz[0]) + ';' + to_string(poz[2]);
+    menu->write(9,pozycje);
+
 /*
 
     //lewo
@@ -439,5 +444,4 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
         polecenie[5]=false;
     }*/
 }
-
 

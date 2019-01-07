@@ -61,8 +61,8 @@ void getCommand(Player *player) {
         player->buf.erase(player->buf.find('\r'));
     }
 
-    cout << player->login << " ";
-    cout  << "c: " << player->command << " || buf: " << player->buf << " " <<  '\n';
+//    cout << player->login << " ";
+//    cout  << "c: " << player->command << " || buf: " << player->buf << " " <<  '\n';
     
 
 }
@@ -87,10 +87,10 @@ void getPosition(Player *player) {
     int firstDelimiter = player->command.find(DELIMITER);
     int secondDelimiter = player->command.find(DELIMITER, firstDelimiter+1);
     string pos1 = player->command.substr(firstDelimiter + 1,
-                                                  secondDelimiter - firstDelimiter - 2);
+                                                  secondDelimiter - firstDelimiter - 1);
     string pos2 = player->command.substr(secondDelimiter + 1,
                                          player->command.size() - secondDelimiter - 2);
-
+//    cout << pos1 << " " << pos2 << '\n';
     player->position[0] = stoi(pos1);
     player->position[1] = stoi(pos2);
 }
