@@ -231,6 +231,17 @@ void Menu::readData()
              QByteArray tresc = qlist[1];
              switch(numer)
              {
+                 case -1:
+                 {
+                     QMessageBox::information(this,"Informacja", "Przeciwnik rozłączył się");
+
+                     game->close();
+
+
+                     this->setVisible(true);
+                     this->setEnabled(true);
+                     break;
+                 }
                  case 0:
                 {
                      (tresc=="0") ? odp_polaczono=0 : odp_polaczono=1;
@@ -334,7 +345,6 @@ void Menu::rozpocznijGre()
     this->setEnabled(false);
     this->close();
 
-    MainWindow *game;
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
     game->show();
 }

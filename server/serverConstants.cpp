@@ -27,7 +27,7 @@ Player::~Player() {
     pthread_mutex_unlock(serverMutex);
     if(opponent != nullptr) {
         char buffer[4];
-        string message = "#-1&";
+        string message = "#-1;&";
         strcpy(buffer, message.c_str());
         write(opponent->fd, buffer, message.size());
     }

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QtNetwork>
+#include "mainwindow.h"
 
 namespace Ui {
 class Menu;
@@ -44,6 +45,7 @@ private:
     Ui::Menu *ui;
 
     QTcpSocket *tcpSocket;
+    MainWindow *game;
 };
 
 #endif // MENU_H
