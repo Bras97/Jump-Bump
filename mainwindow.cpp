@@ -71,29 +71,37 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     polecenie[7]=true; //spadaj caly czas jak nie masz gruntu
 
     //wybor krolika
-    rabbit_l1.load(":/new/prefix1/rabbit2_icon_l1.png");
-    rabbit_l2.load(":/new/prefix1/rabbit2_icon_l2.png");
-    rabbit_r1.load(":/new/prefix1/rabbit2_icon_r1.png");
-    rabbit_r2.load(":/new/prefix1/rabbit2_icon_r2.png");
-    rabbit_temp.load(":/new/prefix1/rabbit1_icon_r2.png");
-
-    //cout << plec << endl;
-
-    if(plec.toStdString()=="K")
+    if(plec.toStdString()=="M")
+    {
+        rabbit_l1.load(":/new/prefix1/rabbit2_icon_l1.png");
+        rabbit_l2.load(":/new/prefix1/rabbit2_icon_l2.png");
+        rabbit_r1.load(":/new/prefix1/rabbit2_icon_r1.png");
+        rabbit_r2.load(":/new/prefix1/rabbit2_icon_r2.png");
+        rabbit2_l1.load(":/new/prefix1/rabbit1_icon_l1.png");
+        rabbit2_l2.load(":/new/prefix1/rabbit1_icon_l2.png");
+        rabbit2_r1.load(":/new/prefix1/rabbit1_icon_r1.png");
+        rabbit2_r2.load(":/new/prefix1/rabbit1_icon_r2.png");
+    }
+    else
     {
         rabbit_l1.load(":/new/prefix1/rabbit1_icon_l1.png");
         rabbit_l2.load(":/new/prefix1/rabbit1_icon_l2.png");
         rabbit_r1.load(":/new/prefix1/rabbit1_icon_r1.png");
         rabbit_r2.load(":/new/prefix1/rabbit1_icon_r2.png");
-        rabbit_temp.load(":/new/prefix1/rabbit2_icon_r2.png");
+        rabbit2_l1.load(":/new/prefix1/rabbit2_icon_l1.png");
+        rabbit2_l2.load(":/new/prefix1/rabbit2_icon_l2.png");
+        rabbit2_r1.load(":/new/prefix1/rabbit2_icon_r1.png");
+        rabbit2_r2.load(":/new/prefix1/rabbit2_icon_r2.png");
         ui->player_1->setPixmap(rabbit_l1);
-        ui->player_2->setPixmap(rabbit_temp);
+        ui->player_2->setPixmap(rabbit2_l1);
         ui->rabbit_1->setStyleSheet("border-image: url(:/new/prefix1/rabbit1.jpg);");
         ui->rabbit_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2.jpg);");
     }
     //nadanie imion
     ui->name_1->setText(imie);
     ui->name_2->setText(przeciwnik);
+    for(int i=0; i<4; i++)
+        poz2[i]=0;
 }
 
 MainWindow::~MainWindow()
@@ -172,6 +180,18 @@ void MainWindow::ruch()
 //    poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
 //    poz2[2]=ui->player_2->y(); //góra
 //    poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
+    if(menu->pozycjeDrugiego[0]>poz2[0])
+    {
+        if (ui->player_2->pixmap()->toImage() == rabbit2_r1.toImage())
+            ui->player_2->setPixmap(rabbit2_r2);
+        else ui->player_2->setPixmap(rabbit2_r1);
+    }
+    else if(menu->pozycjeDrugiego[0]<poz2[0])
+    {
+        if (ui->player_2->pixmap()->toImage() == rabbit2_l1.toImage())
+            ui->player_2->setPixmap(rabbit2_l2);
+        else ui->player_2->setPixmap(rabbit2_l1);
+    }
     poz2[0] = menu->pozycjeDrugiego[0];
     poz2[1]= poz2[0]  + ui->player_2->width(); //prawo
     poz2[2] = menu->pozycjeDrugiego[1];

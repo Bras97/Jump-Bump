@@ -37,7 +37,7 @@ private:
     Ui::MainWindow *ui;
     QTimer *timer;
     QTcpSocket *tcpSocket;
-    QPixmap rabbit_l1, rabbit_l2, rabbit_r1, rabbit_r2, rabbit_temp;
+    QPixmap rabbit_l1, rabbit_l2, rabbit_r1, rabbit_r2, rabbit2_l1, rabbit2_l2, rabbit2_r1, rabbit2_r2;
 
 };
 
