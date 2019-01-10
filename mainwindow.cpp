@@ -197,7 +197,7 @@ void MainWindow::ruch()
     poz2[2] = menu->pozycjeDrugiego[1];
     poz2[3]= poz2[2] + ui->player_2->height(); //dół
     //ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
-    qInfo() << poz[0] << " " << poz[2] << " || " << poz2[0] << " " << poz2[2];
+    //qInfo() << poz[0] << " " << poz[2] << " || " << poz2[0] << " " << poz2[2];
 
     ui->player_1->setGeometry(poz[0],poz[2],ui->player_1->width(),ui->player_1->height());
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());

@@ -37,6 +37,8 @@ private slots:
     void on_odswiezButton_clicked();
     void rozpocznijGre();
 
+    void on_ipButton_clicked();
+
 public slots:
     void write(int polecenie, std::string imie);
     void readData();

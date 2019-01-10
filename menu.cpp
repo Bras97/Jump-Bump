@@ -17,7 +17,7 @@ int odp_polaczono=-1;
 int odp_zaproszenie=-1;
 int odp_lista=-1;
 int port = 1234;
-
+int odp_start=-1;
 
 template<class T>
 bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
@@ -38,8 +38,6 @@ Menu::Menu(QWidget *parent) :
     ui->setupUi(this);
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QIODevice::readyRead, this, &Menu::readData);
-    tcpSocket->connectToHost("127.0.0.1", port);
-    cout << "Nawiązano połączenie" << endl;
 }
 
 Menu::~Menu()
@@ -59,47 +57,62 @@ void Menu::on_plecK_clicked()
 
 void Menu::on_polaczButton_clicked()
 {
-    imie=ui->imieText->text().toStdString();
-    if(imie=="")
+    QString ip=ui->ipText->text();
+    int kropki = count(ip.begin(),ip.end(),'.');
+    if(kropki!=3)
     {
-        QMessageBox::information(this,"Błąd", "Proszę podać imię królika!");
-    }
-    else if(isSubstring(imie,"#") || isSubstring(imie,";") || isSubstring(imie,"&") || isSubstring(imie,":") )
-    {
-        QMessageBox::information(this,"Błąd", "Użyto niedozwolonego znaku!");
+        QMessageBox::information(this,"Błąd", "Proszę podać prawidłowy adres IP!");
     }
     else
     {
-        if(ui->plecM->isChecked()==false && ui->plecK->isChecked()==false)
-            QMessageBox::information(this,"Błąd", "Proszę wybrać płeć królika!");
+        tcpSocket->connectToHost(ip, port);
+
+        qApp->processEvents();
+        //cout << "Nawiązano połączenie" << nawiazano << endl;
+
+        imie=ui->imieText->text().toStdString();
+        if(imie=="")
+        {
+            QMessageBox::information(this,"Błąd", "Proszę podać imię królika!");
+        }
+        else if(isSubstring(imie,"#") || isSubstring(imie,";") || isSubstring(imie,"&") || isSubstring(imie,":") )
+        {
+            QMessageBox::information(this,"Błąd", "Użyto niedozwolonego znaku!");
+        }
         else
         {
-            if (ui->plecK->isChecked()==true)
-                plec="K";
-
-            write(0,imie);
-
-            do
-            {
-                qApp->processEvents();
-            }
-            while(odp_polaczono==-1);
-
-            if(odp_polaczono==0)
-            {
-                QMessageBox::information(this,"Błąd", "Użytkownik z taką nazwą już istnieje");
-            }
+            if(ui->plecM->isChecked()==false && ui->plecK->isChecked()==false)
+                QMessageBox::information(this,"Błąd", "Proszę wybrać płeć królika!");
             else
             {
-                ui->polaczButton->setEnabled(false);
-                ui->imieText->setEnabled(false);
-                ui->plecM->setEnabled(false);
-                ui->plecK->setEnabled(false);
-                ui->listaGraczy->setEnabled(true);
-                ui->listaGraczy->setStyleSheet("background-color: white;");
-                ui->odswiezButton->setEnabled(true);
+                if (ui->plecK->isChecked()==true)
+                    plec="K";
+
+                write(0,imie);
+
+                do
+                {
+                    qApp->processEvents();
+                }
+                while(odp_polaczono==-1);
+
+                if(odp_polaczono==0)
+                {
+                    QMessageBox::information(this,"Błąd", "Użytkownik z taką nazwą już istnieje");
+                }
+                else
+                {
+                    ui->polaczButton->setEnabled(false);
+                    ui->imieText->setEnabled(false);
+                    ui->plecM->setEnabled(false);
+                    ui->plecK->setEnabled(false);
+                    ui->listaGraczy->setEnabled(true);
+                    ui->listaGraczy->setStyleSheet("background-color: white;");
+                    ui->odswiezButton->setEnabled(true);
+
+                }
+                odp_polaczono=-1;
             }
-            odp_polaczono=-1;
         }
     }
 }
@@ -158,6 +171,7 @@ void Menu::wyslij(string temp)
 
 void Menu::write(int polecenie, string nick)
 {
+    odp_start=1;
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
         switch(polecenie)
         {
@@ -215,10 +229,9 @@ QByteArray Menu::scalanie()
 void Menu::readData()
 {
      QByteArray komunikat;
-     int numer;
      do
      {
-         numer=100; komunikat ="";
+         komunikat ="";
          QByteArray temp = tcpSocket->read(10);
          dlugi_tekst+=temp.toStdString();
 
@@ -347,4 +360,11 @@ void Menu::rozpocznijGre()
 
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
     game->show();
+}
+
+void Menu::on_ipButton_clicked()
+{
+    tcpSocket->connectToHost("127.0.0.1", port);
+    cout << "Nawiązano połączenie" << endl;
+
 }
