@@ -38,6 +38,10 @@ Menu::Menu(QWidget *parent) :
     ui->setupUi(this);
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QIODevice::readyRead, this, &Menu::readData);
+    QMovie *movie = new QMovie(":/new/prefix1/logo.gif");
+    ui->logo->setMovie(movie);
+    movie->start();
+    this->setFixedSize(this->size());
 }
 
 Menu::~Menu()
@@ -66,8 +70,13 @@ void Menu::on_polaczButton_clicked()
     else
     {
         tcpSocket->connectToHost(ip, port);
-
-        qApp->processEvents();
+//        int waiting=0;
+//        do
+//        {
+            qApp->processEvents();
+//            waiting++;
+//        }
+//        while(waiting<50);
         //cout << "Nawiązano połączenie" << nawiazano << endl;
 
         imie=ui->imieText->text().toStdString();
@@ -106,6 +115,7 @@ void Menu::on_polaczButton_clicked()
                     ui->imieText->setEnabled(false);
                     ui->plecM->setEnabled(false);
                     ui->plecK->setEnabled(false);
+                    ui->ipText->setEnabled(false);
                     ui->listaGraczy->setEnabled(true);
                     ui->listaGraczy->setStyleSheet("background-color: white;");
                     ui->odswiezButton->setEnabled(true);
@@ -175,6 +185,8 @@ void Menu::write(int polecenie, string nick)
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
         switch(polecenie)
         {
+            case -1: wyslij(string("#-1;" + nick + "&"));
+                    break;
             case 0: wyslij(string("#0;" + nick + "&"));
                     break;
             case 1: wyslij(string("#1;1&"));
@@ -216,7 +228,7 @@ QByteArray Menu::scalanie()
     if(poprawny==true)
     {
         dlugi_tekst.erase(0,usun);
-        //cout << "Komunikat: " << komunikat << endl;
+        cout << "Komunikat: " << komunikat << endl;
         poprawny=false;
     }
     else
@@ -301,22 +313,29 @@ void Menu::readData()
                     }
                     break;
                 }
-             case 8:
-             {
-    //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
-                pozycjeMoje[0] = qlist[1].toInt();
-                pozycjeMoje[1] = qlist[2].toInt();
-                break;
-             }
+                 case 7:
+                 {
+        //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                    wynik_1 = qlist[1].toInt();
+                    wynik_2 = qlist[2].toInt();
+                    break;
+                 }
+                 case 8:
+                 {
+        //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                    pozycjeMoje[0] = qlist[1].toInt();
+                    pozycjeMoje[1] = qlist[2].toInt();
+                    break;
+                 }
 
-             case 9:
-             {
-//                qInfo() << "9 " << qlist[1] << " " << qlist[2];
-                pozycjeDrugiego[0] = qlist[1].toInt();
-                pozycjeDrugiego[1] = qlist[2].toInt();
-                break;
-             }
-             default: break;
+                 case 9:
+                 {
+    //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
+                    pozycjeDrugiego[0] = qlist[1].toInt();
+                    pozycjeDrugiego[1] = qlist[2].toInt();
+                    break;
+                 }
+                 default: break;
              }
          }
     }

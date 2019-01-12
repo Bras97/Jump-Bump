@@ -29,6 +29,7 @@ public:
 
 public slots:
     void ruch();
+    void closeEvent(QCloseEvent *event);
 
 //    void displayError(QAbstractSocket::SocketError socketError);
 

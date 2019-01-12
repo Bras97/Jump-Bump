@@ -18,6 +18,7 @@ public:
     ~Menu();
     int pozycjeDrugiego[2];
     int pozycjeMoje[2];
+    int wynik_1=0, wynik_2=0;
 
 private slots:
     void on_plecM_clicked();

@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>Menu</class>
  <widget class="QDialog" name="Menu">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -165,7 +168,7 @@ font: 12pt &quot;Sans Serif&quot;;</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wybierz płeć królika: &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -193,7 +196,7 @@ font: 12pt &quot;Sans Serif&quot;;</string>
 background-color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
-           <string>127.0.0.1</string>
+           <string>192.168.1.2</string>
           </property>
          </widget>
         </item>
@@ -209,7 +212,7 @@ background-color: rgb(255, 255, 255);</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -240,13 +243,13 @@ background-color: rgb(255, 255, 255);</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>170</y>
          <width>201</width>
-         <height>21</height>
+         <height>23</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout">

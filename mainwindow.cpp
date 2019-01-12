@@ -14,7 +14,7 @@
 using namespace std;
 int skok=0, skok2=0;
 
-bool polecenie[8];
+bool polecenie[4];
 int poz[4];
 int poz2[4];
 int PREDKOSC = 5;
@@ -28,7 +28,7 @@ int wynik1=0;
 bool spada=true;
 int respawn[8][2];
 string w="";
-bool zbity2=false, zbity=false;
+bool zbity=false;
 Menu *menu;
 //string host = "127.0.0.1";
 QString krolik_l1, krolik_l2, krolik_r1, krolik_r2;
@@ -46,6 +46,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     ui->game_over->setVisible(0);
 
     menu = qobject_cast<Menu *>(parent);
+    this->setFixedSize(this->size());
 
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
@@ -65,10 +66,9 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     bloki[15] = ui->block_16;
     bloki[16] = ui->block_17;
 
-    for(int i=0; i<8; i++)
+    for(int i=0; i<3; i++)
         polecenie[i]=false;
     polecenie[3]=true; //spadaj caly czas jak nie masz gruntu
-    polecenie[7]=true; //spadaj caly czas jak nie masz gruntu
 
     //wybor krolika
     if(plec.toStdString()=="M")
@@ -176,10 +176,7 @@ void MainWindow::ruch()
     poz[1]=poz[0] + ui->player_1->width(); //prawo
     poz[3]=poz[2] + ui->player_1->height(); //dół
 
-//    poz2[0]=ui->player_2->x(); //lewo
-//    poz2[1]=ui->player_2->x() + ui->player_2->width(); //prawo
-//    poz2[2]=ui->player_2->y(); //góra
-//    poz2[3]=ui->player_2->y() + ui->player_2->height(); //dół
+    //ładowanie obrazka ruchomego
     if(menu->pozycjeDrugiego[0]>poz2[0])
     {
         if (ui->player_2->pixmap()->toImage() == rabbit2_r1.toImage())
@@ -308,106 +305,17 @@ void MainWindow::ruch()
     }
 
     string pozycje = to_string(poz[0]) + ';' + to_string(poz[2]);
+    ui->score_1->setText(QString::fromStdString(to_string(menu->wynik_1)));
+    ui->score_2->setText(QString::fromStdString(to_string(menu->wynik_2)));
     menu->write(9,pozycje);
+}
 
-/*
-
-    //lewo
-    if(polecenie[4]==true)
-    {
-        if(!(poz2[0]-PREDKOSC <= 0))
-        {
-            if(!kolizja(poz2[0]-PREDKOSC-1, poz2[1]-PREDKOSC-1, poz2[2], poz2[3]))
-            {
-                if (ui->player_2->styleSheet() == "border-image: url(:/new/prefix1/rabbit1_icon_l1.png);")
-                    ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_l2.png);");
-                else ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_l1.png);");
-            ui->player_2->setGeometry(poz2[0]-PREDKOSC,ui->player_2->y(),ui->player_2->width(),ui->player_2->height());
-            }
-            else
-                ui->player_2->setGeometry(bloki[ktory2]->x()+bloki[ktory2]->width()+1,ui->player_2->y(),ui->player_2->width(),ui->player_2->height());
-        }
-    }
-    //prawo
-    if(polecenie[5]==true)
-    {
-        if(!(poz2[1]+PREDKOSC >= ui->background->width()))
-        {
-            if(!kolizja(poz2[0]+PREDKOSC+1, poz2[1]+PREDKOSC+1, poz2[2], poz2[3]))
-            {
-                if (ui->player_2->styleSheet() == "border-image: url(:/new/prefix1/rabbit1_icon_r1.png);")
-                    ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_r2.png);");
-                else ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit1_icon_r1.png);");
-                ui->player_2->setGeometry(poz2[0]+PREDKOSC,ui->player_2->y(),ui->player_2->width(),ui->player_2->height());
-            }
-            else
-                ui->player_2->setGeometry(bloki[ktory2]->x()-ui->player_2->width()-1,ui->player_2->y(),ui->player_2->width(),ui->player_2->height());
-        }
-    }
-    //skok2
-    if(polecenie[6]==true)
-    {
-        wgore2=16-skok2;
-
-        if(kolizja(poz2[0], poz2[1], poz2[2]-wgore2, poz2[3]-wgore2))
-        {
-           skok2=16;
-           ui->player_2->setGeometry(ui->player_2->x(),(bloki[ktory2]->y() + bloki[ktory2]->height() + 1), ui->player_2->width(),ui->player_2->height());
-        }
-        else ui->player_2->setGeometry(ui->player_2->x(),ui->player_2->y()-wgore2,ui->player_2->width(),ui->player_2->height());
-
-        if(skok2<16) skok2++;
-        else
-        {
-            skok2=0;
-            polecenie[6]=false;
-            polecenie[7]=true;
-        }
-    }
-    //spadanie
-    if(polecenie[7]==true)
-    {
-        if(zderzenie(poz2[0], poz2[1], poz2[2], poz2[3], poz[0], poz[1], poz[2], poz[3]))
-        {
-            wynik2++;
-            if (wynik2<10)
-                w2 = "0" + to_string(wynik2);
-            else
-                w2 = to_string(wynik2);
-            ui->score_2->setText(QString::fromStdString(w2));
-            if (wynik2==LIMIT_GRY)
-            {
-
-                ui->game_over->setVisible(1);
-                QString napis = ui->name_2->text();
-                string napis_koncowy = string("WYGRYWA: ");
-                ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
-                //ui->game_over->setAlignment(1);
-            }
-            zbity=true;
-            srand(time(NULL));
-            int spawn= rand() % 8;
-            ui->player_1->setGeometry(respawn[spawn][0],respawn[spawn][1],ui->player_1->width(),ui->player_1->height());
-        }
-        if(zbity2==false)
-        {
-            skok2++;
-            if(kolizja(poz2[0], poz2[1], poz2[2]+skok2, poz2[3]+skok2))
-            {
-               ui->player_2->setGeometry(ui->player_2->x(),(bloki[ktory2]->y() - ui->player_2->height() -1), ui->player_2->width(),ui->player_2->height());
-               spada2=false;
-               skok2=0;
-            }
-            else
-            {
-                ui->player_2->setGeometry(ui->player_2->x(),ui->player_2->y()+skok2,ui->player_2->width(),ui->player_2->height());
-                spada2=true;
-            }
-        }
-        else zbity2=false;
-    }
-*/
-    //write();
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    menu->write(-1,"");
+    cout << "Wychodzenie z gry..." << endl;
+    qApp->processEvents();
+    event->accept();
 }
 
 
@@ -428,22 +336,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         polecenie[2]=true;
         polecenie[3]=false;
     }
-/*
-    if(event->key() == Qt::Key_A)
-    {
-        polecenie[4]=true;
-    }
-
-    if(event->key() == Qt::Key_D)
-    {
-        polecenie[5]=true;
-    }
-
-    if(event->key() == Qt::Key_W && polecenie[6] == false && spada2 == false)
-    {
-        polecenie[6]=true;
-        polecenie[7]=false;
-    }*/
 }
 
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
@@ -456,15 +348,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
     {
         polecenie[1]=false;
     }
-    /*
-    if(event->key() == Qt::Key_A)
-    {
-        polecenie[4]=false;
-    }
-    if(event->key() == Qt::Key_D)
-    {
-        polecenie[5]=false;
-    }*/
 }
 
 
