@@ -29,6 +29,7 @@ void getPoint(Game *game, int player_number) {
     game->score[player_number]++;
     for(int i = 0; i < 2; i++) {
         temp.clear();
+        memset(buffer, 0, BUFFER);
         temp = "#7;" + to_string(game->score[i]) + ';' + to_string(game->score[abs(i-1)]) + END;
         strcpy(buffer, temp.c_str());
         write(game->player[i]->fd, buffer, temp.size());
@@ -36,6 +37,24 @@ void getPoint(Game *game, int player_number) {
 
 //    cout << game->player[0]->login << " " << game->score[0] << " || " << game->score[1] << " " << game->player[1]->login << '\n';
 
+    if(game->score[player_number] == MAX_POINTS) {
+        // wiadomosc do wygranego
+        temp.clear();
+        memset(buffer, 0, BUFFER);
+        temp = "#6;1&";
+        strcpy(buffer, temp.c_str());
+        write(game->player[player_number]->fd, buffer, temp.size());
+
+        // wiadomosc do przegranego
+        temp.clear();
+        memset(buffer, 0, BUFFER);
+        temp = "#6;0&";
+        strcpy(buffer, temp.c_str());
+        write(game->player[abs(player_number-1)]->fd, buffer, temp.size());
+
+        game->player[0]->playing = false;
+        game->player[1]->playing = false;
+    }
 
 }
 

@@ -19,6 +19,8 @@
 #define BUNNY_HEIGHT 40
 #define BUNNY_WIDTH 50
 
+#define MAX_POINTS 5
+
 
 class Player {
 public:
