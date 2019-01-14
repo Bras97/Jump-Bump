@@ -21,6 +21,8 @@ void getPoint(Game *game, int player_number) {
     game->player[abs(player_number-1)]->buf.clear();
     game->player[abs(player_number-1)]->command.clear();
     newPosition(game->player[abs(player_number-1)]);
+    game->positions[abs(player_number-1)][0] = game->player[abs(player_number-1)]->position[0];
+    game->positions[abs(player_number-1)][1] = game->player[abs(player_number-1)]->position[1];
 
 
     // nowy wynik
@@ -32,41 +34,36 @@ void getPoint(Game *game, int player_number) {
         write(game->player[i]->fd, buffer, temp.size());
     }
 
-    cout << game->player[0]->login << " " << game->score[0] << " || " << game->score[1] << " " << game->player[1]->login << '\n';
+//    cout << game->player[0]->login << " " << game->score[0] << " || " << game->score[1] << " " << game->player[1]->login << '\n';
+
 
 }
 
-void checkCollision(Game *game) {
+void checkCollision(Game *game, int player_number){
 
-    // pierwszy spada na drugiego
-    if (( game->positions[0][0] <= game->positions[1][0] + BUNNY_WIDTH) &&
-        ( game->positions[0][0] + BUNNY_WIDTH >= game->positions[1][0]) &&
-        ( game->positions[0][1] <= game->positions[1][1] + BUNNY_HEIGHT) &&
-        ( game->positions[0][1] + BUNNY_HEIGHT >= game->positions[1][1] ) &&
-            ( game->positions[0][1] <= game->positions[1][1] - 15 &&
-            game->positions[0][0] + BUNNY_WIDTH >= game->positions[1][0] + 10 &&
-            game->positions[0][0] <= game->positions[0][0] + BUNNY_WIDTH - 10)) {
+    int *oldPlayerPos, *playerPos, *opponentPos;
+    playerPos = game->player[player_number]->position;
+    opponentPos = game->player[abs(player_number-1)]->position;
+    oldPlayerPos = game->positions[player_number];
 
-            cout << "KOLIZJA 1" << '\n';
-            getPoint(game, 0);
+    // czy spada
+    if (playerPos[1] > oldPlayerPos[1]) {
+        // czy jest kolizja
+        if ((playerPos[0] <= opponentPos[0] + BUNNY_WIDTH) &&
+            (playerPos[0] + BUNNY_WIDTH >= opponentPos[0]) &&
+            (playerPos[1] <= opponentPos[1] + BUNNY_HEIGHT) &&
+            (playerPos[1] + BUNNY_HEIGHT >= opponentPos[1])) {
+
+            if (playerPos[1] <= opponentPos[1] - 15 &&
+                playerPos[0] + BUNNY_WIDTH >= opponentPos[0] + 10 &&
+                playerPos[0] <= playerPos[0] + BUNNY_WIDTH - 10) {
+
+                getPoint(game, player_number);
+            }
 
         }
-
-
-    else if (( game->positions[1][0] <= game->positions[0][0] + BUNNY_WIDTH) &&
-        ( game->positions[1][0] + BUNNY_WIDTH >= game->positions[0][0]) &&
-        ( game->positions[1][1] <= game->positions[0][1] + BUNNY_HEIGHT) &&
-        ( game->positions[1][1] + BUNNY_HEIGHT >= game->positions[0][1] ) )
-    {
-        if( game->positions[1][1] <= game->positions[0][1] - 15 &&
-            game->positions[1][0] + BUNNY_WIDTH >= game->positions[0][0] + 10 &&
-            game->positions[1][0] <= game->positions[1][0] + BUNNY_WIDTH - 10) {
-
-            cout << "KOLIZJA 2" << '\n';
-            getPoint(game, 1);
-        }
-
     }
+
 
 }
 
@@ -80,6 +77,13 @@ void newPosition(Player *player) {
     s = "#8;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
     strcpy(buffer, s.c_str());
     write(player->fd, buffer, s.size());
+
+    memset(buffer, 0, BUFFER);
+    s.clear();
+    s = "#9;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
+    strcpy(buffer, s.c_str());
+    write(player->opponent->fd, buffer, s.size());
+
 //    cout << buffer << '\n';
 
 }
@@ -110,7 +114,7 @@ void *playGame(void *data) {
 
     cout << "starting game between " << game->player[0]->login << " and " << game->player[1]->login << '\n';
 
-    startGame(game);
+
 
     char buffer[BUFFER];
     string s;
@@ -118,7 +122,10 @@ void *playGame(void *data) {
 
     pthread_mutex_lock(&game->player[0]->playerMutex);
     pthread_mutex_lock(&game->player[1]->playerMutex);
+
     pthread_mutex_lock(gameMutex);
+    startGame(game);
+
     pthread_mutex_unlock(&game->player[1]->playerMutex);
     pthread_mutex_unlock(&game->player[0]->playerMutex);
 
@@ -129,8 +136,13 @@ void *playGame(void *data) {
         pthread_mutex_lock(&game->player[0]->playerMutex);
         pthread_mutex_lock(&game->player[1]->playerMutex);
 
+
+        //czy byl wykonany ruch przez gracza1
         if ((game->positions[0][0] != game->player[0]->position[0]) ||
             (game->positions[0][1] != game->player[0]->position[1])) {
+
+            checkCollision(game, 0);
+
             s = "#9;" + to_string(game->player[0]->position[0]) + ";" + to_string(game->player[0]->position[1]) + END;
             strcpy(buffer, s.c_str());
             write(game->player[1]->fd, buffer, s.size());
@@ -139,8 +151,12 @@ void *playGame(void *data) {
 
         }
 
+        //czy byl wykonany ruch przez gracza2
         if ((game->positions[1][0] != game->player[1]->position[0]) ||
-            (game->positions[1][1] != game->player[1]->position[1])) {
+            (game->positions[1][1] != game->player[1]->position[1])){
+
+            checkCollision(game, 1);
+
             s.clear();
             memset(buffer, 0, BUFFER);
             s = "#9;" + to_string(game->player[1]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
@@ -151,7 +167,7 @@ void *playGame(void *data) {
 
         }
 
-        checkCollision(game);
+
 
         pthread_mutex_unlock(&game->player[0]->playerMutex);
         pthread_mutex_unlock(&game->player[1]->playerMutex);

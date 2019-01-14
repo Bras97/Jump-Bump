@@ -7,7 +7,7 @@
 
 #include "serverConstants.h"
 
-void checkCollision(Game *game);
+void checkCollision(Game *game, int player_number);
 void getPoint(Game *game, int player_number);
 void newPosition(Player *player);
 void startGame(Game *game);
