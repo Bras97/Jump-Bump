@@ -7,3 +7,5 @@ server/CMakeCache.txt
 server/cmake_install.cmake
 server/Makefile
 server/server
+
+*.user

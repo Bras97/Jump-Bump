@@ -46,7 +46,7 @@ public:
     int positions[2][2];
 
     explicit Game(Player *players[2]);
-    virtual ~Game() {}
+    virtual ~Game();
 };
 
 struct thread_data

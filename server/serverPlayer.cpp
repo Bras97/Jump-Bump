@@ -23,6 +23,8 @@ void getCommand(Player *player) {
 
     if (newPart.empty()) {
         player->run = false;
+        player->playing = false;
+        return;
     }
 
     // gdy juz byl poczatek
@@ -53,6 +55,18 @@ void getCommand(Player *player) {
             if(endPoint < newPart.size() - 1) {
                 newPart = newPart.substr(endPoint + 1, newPart.size() - (endPoint + 1));
                 (player->buf).append(newPart);
+            }
+
+            int firstDelimiter = (player->command).find(DELIMITER);
+            if (firstDelimiter != -1) {
+                string commandNumber = (player->command).substr(1, firstDelimiter - 1);
+                if (commandNumber == "-1") {
+                    pthread_mutex_lock(&player->playerMutex);
+                    player->run = false;
+                    player->playing = false;
+                    pthread_mutex_unlock(&player->playerMutex);
+                    return;
+                }
             }
         }
     }
@@ -101,8 +115,6 @@ void getPosition(Player *player) {
 }
 
 void startGame(Player *player) {
-    cout << "preparing to start a game" << '\n';
-
     pthread_mutex_t mutex_game = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock(&mutex_game);
 
@@ -111,7 +123,6 @@ void startGame(Player *player) {
     game_data->player[1] = player->opponent;
     game_data->gameMutex = &mutex_game;
     pthread_t thread1;
-    cout << player->login << " " << game_data->player[0]->login << '\n';
     int create_result = pthread_create(&thread1, NULL, playGame, (void *)game_data);
 
     if (create_result){
@@ -328,60 +339,83 @@ void *playerPlays (void *t_data)
         }
     }
 
+    while(player -> run) {
+        // zanim zacznie grac
+        while (player->run && !player->playing) {
+            memset(buffer, 0, BUFFER);
+            read(player->fd, buffer, BUFFER);
+            player->buf.append(string(buffer));
+            getCommand(player);
 
-    // zanim zacznie grac
-    while(player-> run && !player->playing) {
-        memset(buffer, 0, BUFFER);
-        read(player->fd, buffer, BUFFER);
-        player->buf.append(string(buffer));
-        getCommand(player);
+            if (!player->command.empty()) {
+                if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
 
-        if(!player->command.empty()) {
-            if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
+                    // wyslij liste graczy
+                    if (player->command.at(1) == '1') {
+                        funcList(player);
+                    }
 
-                // wyslij liste graczy
-                if (player->command.at(1) == '1') {
-                    funcList(player);
+                        // gracz chce zaprosic gracza2 do gry
+                    else if (player->command.at(1) == '2') {
+                        funcInvite(player);
+
+                    }
+
+                        // gracz jest zapraszany do gry
+                    else if (player->command.at(1) == '3') {
+                        funcIsInvited(player);
+                    }
+
+                    player->command.clear();
                 }
-
-                    // gracz chce zaprosic gracza2 do gry
-                else if (player->command.at(1) == '2') {
-                    funcInvite(player);
-
-                }
-
-                    // gracz jest zapraszany do gry
-                else if (player->command.at(1) == '3') {
-                    funcIsInvited(player);
-                }
-
-                player->command.clear();
             }
         }
+
+        // przesylanie pozycji
+        while (player->run && player->playing) {
+
+            memset(buffer, 0, BUFFER);
+            read(player->fd, buffer, BUFFER);
+            player->buf.append(string(buffer));
+            getCommand(player);
+
+            if (!player->command.empty()) {
+                if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
+
+                    if (player->command.at(1) == '9') {
+                        getPosition(player);
+                    }
+
+                    player->command.clear();
+
+                }
+            }
+
+        }
+
     }
 
-    // przesylanie pozycji
-    while(player-> run && player->playing) {
 
-        memset(buffer, 0, BUFFER);
-        read(player->fd, buffer, BUFFER);
-        player->buf.append(string(buffer));
-        getCommand(player);
+    pthread_mutex_t *serverMutex = player->serverMutex;
 
-        if(!player->command.empty()) {
-            if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
-
-                if (player->command.at(1) == '9') {
-                    getPosition(player);
-                }
-
-                player->command.clear();
-
-            }
-        }
-
+    std::cout << "! player " << player->fd << " stopped" << '\n';
+    pthread_mutex_lock(serverMutex);
+    pthread_mutex_lock(&player->playerMutex);
+    if(player->opponent != nullptr) {
+        char buffer[4];
+        string message = "#-1;&";
+        strcpy(buffer, message.c_str());
+        write(player->opponent->fd, buffer, message.size());
+        pthread_mutex_lock(&player->opponent->playerMutex);
+        player->opponent->playing = false;
+        player->opponent->opponent = nullptr;
+        pthread_mutex_unlock(&player->opponent->playerMutex);
     }
 
     delete player;
+
+    pthread_mutex_unlock(&player->playerMutex);
+    pthread_mutex_unlock(serverMutex);
+
 }
 

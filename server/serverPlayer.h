@@ -17,6 +17,7 @@ void funcList(Player *player);
 void funcSendUnavailable(Player *player);
 void funcInvite(Player *player);
 void funcIsInvited(Player *player);
+void startGame(Player *player);
 
 
 #endif //SERVER_SERVERPLAYER_H
