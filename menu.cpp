@@ -259,7 +259,7 @@ void Menu::readData()
                  case -1:
                  {
                      QMessageBox::information(this,"Informacja", "Przeciwnik rozłączył się");
-
+                     odp_zamkniecie = true;
                      game->close();
 
 

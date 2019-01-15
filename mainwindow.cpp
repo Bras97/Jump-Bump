@@ -312,9 +312,12 @@ void MainWindow::ruch()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    menu->write(-1,"");
-    cout << "Wychodzenie z gry..." << endl;
-    qApp->processEvents();
+    if(menu->odp_zamkniecie==false)
+    {
+        menu->write(-1,"");
+        cout << "Wychodzenie z gry..." << endl;
+        qApp->closeAllWindows();
+    }
     event->accept();
 }
 
