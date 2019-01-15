@@ -410,7 +410,7 @@ void Menu::zeruj()
     pozycjeMoje[0]=0;
     pozycjeMoje[1]=0;
     wynik_1=0, wynik_2=0;
-
+    //delete game;
     odp_zamkniecie=false;
     odp_wygrana=-1;
 

@@ -148,15 +148,16 @@ void delay()
 
 void MainWindow::koniec_gry(QString napis)
 {
-    menu->zeruj();
     ui->game_over->setVisible(1);
     string napis_koncowy = string("WYGRYWA: ");
     ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
     delay();
+    //timer->stop();
+    delete timer;
     menu->setVisible(true);
     menu->setEnabled(true);
+    menu->zeruj();
     this->destroy();
-
 }
 
 void MainWindow::ruch()
