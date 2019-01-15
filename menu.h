@@ -19,6 +19,8 @@ public:
     int pozycjeDrugiego[2];
     int pozycjeMoje[2];
     int wynik_1=0, wynik_2=0;
+    MainWindow *game;
+    bool odp_zamkniecie=false;
 
 private slots:
     void on_plecM_clicked();
@@ -48,7 +50,6 @@ private:
     Ui::Menu *ui;
 
     QTcpSocket *tcpSocket;
-    MainWindow *game;
 };
 
 #endif // MENU_H
