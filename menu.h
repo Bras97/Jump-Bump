@@ -21,6 +21,7 @@ public:
     int wynik_1=0, wynik_2=0;
     MainWindow *game;
     bool odp_zamkniecie=false;
+    int odp_wygrana=-1;
 
 private slots:
     void on_plecM_clicked();
@@ -45,6 +46,7 @@ private slots:
 public slots:
     void write(int polecenie, std::string imie);
     void readData();
+    void zeruj();
 
 private:
     Ui::Menu *ui;

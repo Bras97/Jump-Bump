@@ -16,8 +16,8 @@ int odp_czy_wolny=-1;
 int odp_polaczono=-1;
 int odp_zaproszenie=-1;
 int odp_lista=-1;
-int port = 1234;
 int odp_start=-1;
+int port = 1234;
 
 template<class T>
 bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
@@ -69,6 +69,13 @@ void Menu::on_polaczButton_clicked()
     }
     else
     {
+        if(isSubstring(ip.toStdString(),":"))
+        {
+
+            QList<QString> qlist = ip.split(":");
+            port=qlist[1].toInt();
+            ip=qlist[0];
+        }
         tcpSocket->connectToHost(ip, port);
 //        int waiting=0;
 //        do
@@ -166,6 +173,9 @@ void Menu::on_dolaczButton_clicked()
 
         }
     }
+    odp_czy_wolny=-1;
+    odp_zaproszenie=-1;
+    odp_start=-1;
 }
 
 void Menu::wyslij(string temp)
@@ -313,6 +323,11 @@ void Menu::readData()
                     }
                     break;
                 }
+                 case 6:
+                 {
+                     odp_wygrana=qlist[1].toInt();
+                     break;
+                 }
                  case 7:
                  {
         //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
@@ -385,5 +400,18 @@ void Menu::on_ipButton_clicked()
 {
     tcpSocket->connectToHost("127.0.0.1", port);
     cout << "Nawiązano połączenie" << endl;
+
+}
+
+void Menu::zeruj()
+{
+    pozycjeDrugiego[0]=0;
+    pozycjeDrugiego[1]=0;
+    pozycjeMoje[0]=0;
+    pozycjeMoje[1]=0;
+    wynik_1=0, wynik_2=0;
+
+    odp_zamkniecie=false;
+    odp_wygrana=-1;
 
 }

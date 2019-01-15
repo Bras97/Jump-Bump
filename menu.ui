@@ -196,7 +196,7 @@ font: 12pt &quot;Sans Serif&quot;;</string>
 background-color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
-           <string>192.168.1.2</string>
+           <string>127.0.0.1</string>
           </property>
          </widget>
         </item>

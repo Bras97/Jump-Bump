@@ -148,6 +148,7 @@ void delay()
 
 void MainWindow::koniec_gry(QString napis)
 {
+    menu->zeruj();
     ui->game_over->setVisible(1);
     string napis_koncowy = string("WYGRYWA: ");
     ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
@@ -198,6 +199,20 @@ void MainWindow::ruch()
 
     ui->player_1->setGeometry(poz[0],poz[2],ui->player_1->width(),ui->player_1->height());
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());
+
+    //czy wygrana
+    if(menu->odp_wygrana==0)
+    {
+        ui->score_2->setText(QString::number(ui->score_2->text().toInt()+1));
+        QString napis = ui->name_2->text();
+        koniec_gry(napis);
+    }
+    else if(menu->odp_wygrana==1)
+    {
+       ui->score_1->setText(QString::number(ui->score_1->text().toInt()+1));
+       QString napis = ui->name_1->text();
+       koniec_gry(napis);
+    }
 
     //lewo
     if(polecenie[0]==true)
