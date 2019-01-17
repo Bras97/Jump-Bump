@@ -238,7 +238,7 @@ QByteArray Menu::scalanie()
     if(poprawny==true)
     {
         dlugi_tekst.erase(0,usun);
-        cout << "Komunikat: " << komunikat << endl;
+//        cout << "Komunikat: " << komunikat << endl;
         poprawny=false;
     }
     else
@@ -256,6 +256,7 @@ void Menu::readData()
          komunikat ="";
          QByteArray temp = tcpSocket->read(10);
          dlugi_tekst+=temp.toStdString();
+//         cout << dlugi_tekst << '\n';
 
          komunikat = scalanie();
          if(komunikat!="")
