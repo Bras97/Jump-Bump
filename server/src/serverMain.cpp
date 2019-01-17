@@ -31,14 +31,18 @@ int main(int argc, char* argv[]) {
     pthread_mutex_t mutex_server = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_t *mutex = &mutex_server;
 
+    int port = SERVER_PORT;
 
+    if (argc > 1) {
+        port = atoi(argv[1]);
+    }
 
     //inicjalizacja gniazda serwera
-
+    std::cout << port << "\n";
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(SERVER_PORT);
+    server_address.sin_port = htons(port);
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0)
@@ -62,7 +66,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    std::cout << "Server\n";
+    std::cout << "*** Server on port " << port << " *** \n";
     while(1)
     {
 
