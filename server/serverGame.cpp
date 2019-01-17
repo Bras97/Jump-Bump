@@ -82,8 +82,6 @@ void checkCollision(Game *game, int player_number){
 
         }
     }
-
-
 }
 
 void newPosition(Player *player) {
@@ -109,6 +107,9 @@ void newPosition(Player *player) {
 
 
 void startGame(Game *game) {
+    cout << "* Start game * " << '[' << game->player[0]->fd << ", " << game->player[0]->login << "] vs ["
+         << game->player[1]->fd << ", " << game->player[1]->login <<  "]\n";
+
     srand(time(NULL));
     respawn[0][0]=0; respawn[0][1]=20;
     respawn[1][0]=530; respawn[1][1]=390;
@@ -129,10 +130,6 @@ void *playGame(void *data) {
     pthread_mutex_t *gameMutex = ((struct thread_data_game*)(data))->gameMutex;
     pthread_detach(pthread_self());
     pthread_mutex_unlock(((struct thread_data_game*)(data))->gameMutex);
-
-
-    cout << "starting game between " << game->player[0]->login << " and " << game->player[1]->login << '\n';
-
 
 
     char buffer[BUFFER];
@@ -193,10 +190,11 @@ void *playGame(void *data) {
 
     }
 
+    cout << "* Game over " << game->score[0] << ":" << game->score[1] << " * " << '[' << game->player[0]->fd << ", " << game->player[0]->login << "] vs ["
+         << game->player[1]->fd << ", " << game->player[1]->login <<  "]\n";
 
     pthread_mutex_t *serverMutex = game->player[0]->serverMutex;
 
-    cout << "Game over \n";
     pthread_mutex_lock(serverMutex);
     pthread_mutex_lock(&game->player[0]->playerMutex);
     pthread_mutex_lock(&game->player[1]->playerMutex);

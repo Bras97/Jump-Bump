@@ -89,7 +89,6 @@ void getCommand(Player *player) {
 void *playerPlays (void *t_data)
 {
     pthread_detach(pthread_self());
-    cout << "player ";
 
     auto *player = new Player();
     player->fd = ((struct thread_data*)(t_data))->fd;
@@ -97,7 +96,7 @@ void *playerPlays (void *t_data)
     player->players_ptr->push_back(player);
     player->serverMutex = ((struct thread_data*)(t_data))->mutex;
 
-    cout << player->fd << '\n';
+    std::cout << ">>> create player " << player->fd << '\n';
 
     pthread_mutex_unlock(player->serverMutex);
 
@@ -124,6 +123,7 @@ void *playerPlays (void *t_data)
 
     while(player -> run) {
         // zanim zacznie grac
+        player->opponent = nullptr;
         while (player->run && !player->playing) {
             memset(buffer, 0, BUFFER);
             read(player->fd, buffer, BUFFER);
@@ -181,7 +181,7 @@ void *playerPlays (void *t_data)
 
     pthread_mutex_t *serverMutex = player->serverMutex;
 
-    std::cout << "! player " << player->fd << " stopped" << '\n';
+    // gra zostala zakonczona
     pthread_mutex_lock(serverMutex);
     pthread_mutex_lock(&player->playerMutex);
     if(player->opponent != nullptr) {

@@ -91,11 +91,12 @@ void funcLogin(Player *player) {
 
     // gdy login juz istnieje
     if (err) {
+        cout << "[Loggin is not available] fd: " << player->fd << '\n';
         string message = "#0;0&";
         strcpy(buffer, message.c_str());
         write(player->fd, buffer, message.size());
     } else {
-        cout << newLogin << '\n';
+        cout << "[Logged] fd: " << player->fd << ", login: " << newLogin << '\n';
         player->login.append(newLogin);
         player->logged = true;
         string message = "#0;1&";

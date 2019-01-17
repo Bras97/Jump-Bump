@@ -62,12 +62,12 @@ int main(int argc, char* argv[]) {
     }
 
 
-    std::cout << "Serwer\n";
+    std::cout << "Server\n";
     while(1)
     {
 
         int player_fd = accept(server_fd, NULL, NULL);
-        printf("%d\n", player_fd);
+//        printf("%d\n", player_fd);
         if (player_fd < 0)
         {
             fprintf(stderr, "%s: Błąd przy próbie utworzenia gniazda dla połączenia.\n", argv[0]);

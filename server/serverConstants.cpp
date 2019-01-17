@@ -23,7 +23,7 @@ Player::Player() {
 }
 
 Player::~Player() {
-    std::cout << "delete player " << fd << '\n';
+    std::cout << ">>> delete player " << fd <<  " " << login <<'\n';
     players_ptr->remove(this);
 
     pthread_mutex_unlock(&playerMutex);
