@@ -22,14 +22,16 @@ void getCommand(Player *player) {
     (player->buf).clear();
 
     if (newPart.empty()) {
+        pthread_mutex_lock(&player->playerMutex);
         player->run = false;
         player->playing = false;
+        pthread_mutex_unlock(&player->playerMutex);
         return;
     }
 
     // gdy juz byl poczatek
     if(!(player->command).empty()) {
-        if ((player->command).at(0) == START) {
+        if ((player->command)[0] == START) {
 //            cout << "start\n";
             (player->command).append(newPart.substr(0, newPart.find(END) + 1));
             newPart = newPart.substr(newPart.find(END) + 1,
@@ -110,7 +112,7 @@ void *playerPlays (void *t_data)
         getCommand(player);
 
         if(!player->command.empty()) {
-            if(player->command.at(0) == START && player->command.at(player->command.size()-1) == END) {
+            if(player->command.at(0) == START  && player->command.at(player->command.size()-1) == END ) {
 
                 if (player->command.at(1) == '0') {
                     funcLogin(player);
@@ -123,7 +125,10 @@ void *playerPlays (void *t_data)
 
     while(player -> run) {
         // zanim zacznie grac
+        pthread_mutex_lock(&player->playerMutex);
         player->opponent = nullptr;
+        pthread_mutex_unlock(&player->playerMutex);
+
         while (player->run && !player->playing) {
             memset(buffer, 0, BUFFER);
             read(player->fd, buffer, BUFFER);
@@ -185,10 +190,8 @@ void *playerPlays (void *t_data)
     pthread_mutex_lock(serverMutex);
     pthread_mutex_lock(&player->playerMutex);
     if(player->opponent != nullptr) {
-        char buffer[4];
         string message = "#-1;&";
-        strcpy(buffer, message.c_str());
-        write(player->opponent->fd, buffer, message.size());
+        write(player->opponent->fd, message.c_str(), message.size());
         pthread_mutex_lock(&player->opponent->playerMutex);
         player->opponent->playing = false;
         player->opponent->opponent = nullptr;

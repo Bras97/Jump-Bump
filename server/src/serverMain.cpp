@@ -38,7 +38,6 @@ int main(int argc, char* argv[]) {
     }
 
     //inicjalizacja gniazda serwera
-    std::cout << port << "\n";
     memset(&server_address, 0, sizeof(struct sockaddr));
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);

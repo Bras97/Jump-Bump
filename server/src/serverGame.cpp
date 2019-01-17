@@ -13,10 +13,7 @@ using namespace std;
 int respawn[8][2];
 
 void getPoint(Game *game, int player_number) {
-    char buffer[BUFFER];
-    memset(buffer, 0, BUFFER);
-    string temp;
-    temp.clear();
+    string message;
 
     game->player[abs(player_number-1)]->buf.clear();
     game->player[abs(player_number-1)]->command.clear();
@@ -28,29 +25,23 @@ void getPoint(Game *game, int player_number) {
     // nowy wynik
     game->score[player_number]++;
     for(int i = 0; i < 2; i++) {
-        temp.clear();
-        memset(buffer, 0, BUFFER);
-        temp = "#7;" + to_string(game->score[i]) + ';' + to_string(game->score[abs(i-1)]) + END;
-        strcpy(buffer, temp.c_str());
-        write(game->player[i]->fd, buffer, temp.size());
+        message.clear();
+        message = "#7;" + to_string(game->score[i]) + ';' + to_string(game->score[abs(i-1)]) + END;
+        write(game->player[i]->fd, message.c_str(), message.size());
     }
 
 //    cout << game->player[0]->login << " " << game->score[0] << " || " << game->score[1] << " " << game->player[1]->login << '\n';
 
     if(game->score[player_number] == MAX_POINTS) {
         // wiadomosc do wygranego
-        temp.clear();
-        memset(buffer, 0, BUFFER);
-        temp = "#6;1&";
-        strcpy(buffer, temp.c_str());
-        write(game->player[player_number]->fd, buffer, temp.size());
+        message.clear();
+        message = "#6;1&";
+        write(game->player[player_number]->fd, message.c_str(), message.size());
 
         // wiadomosc do przegranego
-        temp.clear();
-        memset(buffer, 0, BUFFER);
-        temp = "#6;0&";
-        strcpy(buffer, temp.c_str());
-        write(game->player[abs(player_number-1)]->fd, buffer, temp.size());
+        message.clear();
+        message = "#6;0&";
+        write(game->player[abs(player_number-1)]->fd, message.c_str(), message.size());
 
         game->player[0]->playing = false;
         game->player[1]->playing = false;
@@ -85,24 +76,18 @@ void checkCollision(Game *game, int player_number){
 }
 
 void newPosition(Player *player) {
-    char buffer[BUFFER];
-    string s;
+    string message;
 
     int newPos = rand() % 8;
     player->position[0] = respawn[newPos][0];
     player->position[1] = respawn[newPos][1];
-    s = "#8;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
-    strcpy(buffer, s.c_str());
-    write(player->fd, buffer, s.size());
+    message = "#8;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
+    write(player->fd, message.c_str(), message.size());
 
-    memset(buffer, 0, BUFFER);
-    s.clear();
-    s = "#9;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
-    strcpy(buffer, s.c_str());
-    write(player->opponent->fd, buffer, s.size());
 
-//    cout << buffer << '\n';
-
+    message.clear();
+    message = "#9;" + to_string(respawn[newPos][0]) + ';' + to_string(respawn[newPos][1]) + END;
+    write(player->opponent->fd, message.c_str(), message.size());
 }
 
 
@@ -131,8 +116,7 @@ void *playGame(void *data) {
     pthread_detach(pthread_self());
     pthread_mutex_unlock(serverMutex);
 
-    char buffer[BUFFER];
-    string s;
+    string message;
 
 
     pthread_mutex_lock(&game->player[0]->playerMutex);
@@ -145,8 +129,7 @@ void *playGame(void *data) {
 
     //while (game->player[0] != nullptr && game->player[1] != nullptr && game->player[0]->playing && game->player[1]->playing) {
     do {
-        memset(buffer, 0, BUFFER);
-        s.clear();
+        message.clear();
 
         pthread_mutex_lock(&game->player[0]->playerMutex);
         pthread_mutex_lock(&game->player[1]->playerMutex);
@@ -158,9 +141,8 @@ void *playGame(void *data) {
 
             checkCollision(game, 0);
 
-            s = "#9;" + to_string(game->player[0]->position[0]) + ";" + to_string(game->player[0]->position[1]) + END;
-            strcpy(buffer, s.c_str());
-            write(game->player[1]->fd, buffer, s.size());
+            message = "#9;" + to_string(game->player[0]->position[0]) + ";" + to_string(game->player[0]->position[1]) + END;
+            write(game->player[1]->fd, message.c_str(), message.size());
             game->positions[0][0] = game->player[0]->position[0];
             game->positions[0][1] = game->player[0]->position[1];
 
@@ -172,11 +154,9 @@ void *playGame(void *data) {
 
             checkCollision(game, 1);
 
-            s.clear();
-            memset(buffer, 0, BUFFER);
-            s = "#9;" + to_string(game->player[1]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
-            strcpy(buffer, s.c_str());
-            write(game->player[0]->fd, buffer, s.size());
+            message.clear();
+            message = "#9;" + to_string(game->player[1]->position[0]) + ";" + to_string(game->player[1]->position[1]) + END;
+            write(game->player[0]->fd, message.c_str(), message.size());
             game->positions[1][0] = game->player[1]->position[0];
             game->positions[1][1] = game->player[1]->position[1];
 
@@ -189,8 +169,7 @@ void *playGame(void *data) {
 
     } while (game->player[0] != nullptr && game->player[1] != nullptr && game->player[0]->playing && game->player[1]->playing);
 
-    cout << "* Game over " << game->score[0] << ":" << game->score[1] << " * " << '[' << game->player[0]->fd << ", " << game->player[0]->login << "] vs ["
-         << game->player[1]->fd << ", " << game->player[1]->login <<  "]\n";
+    cout << "* Game over " << game->score[0] << ":" << game->score[1] << " * " << '\n';
 
 
     pthread_mutex_lock(serverMutex);

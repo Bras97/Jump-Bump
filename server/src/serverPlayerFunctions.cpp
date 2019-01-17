@@ -69,8 +69,6 @@ void startGame(Player *player) {
 }
 
 void funcLogin(Player *player) {
-
-    char buffer[BUFFER];
     string newLogin = player->command.substr(
             player->command.find(DELIMITER) + 1,
             player->command.find(END) - player->command.find(DELIMITER) - 1);
@@ -83,14 +81,11 @@ void funcLogin(Player *player) {
         }
     }
 
-    memset(buffer, 0, BUFFER);
-
     // gdy login juz istnieje
     if (err) {
-        cout << "[Loggin is not available] fd: " << player->fd << '\n';
+        cout << "[Login is not available] fd: " << player->fd << '\n';
         string message = "#0;0&";
-        strcpy(buffer, message.c_str());
-        write(player->fd, buffer, message.size());
+        write(player->fd, message.c_str(), message.size());
     } else {
         cout << "[Logged] fd: " << player->fd << ", login: " << newLogin << '\n';
         pthread_mutex_lock(&player->playerMutex);
@@ -99,41 +94,27 @@ void funcLogin(Player *player) {
         player->logged = true;
         pthread_mutex_unlock(&player->playerMutex);
         string message = "#0;1&";
-        strcpy(buffer, message.c_str());
-        write(player->fd, buffer, message.size());
+        write(player->fd, message.c_str(), message.size());
     }
 }
 
 void funcList(Player *player) {
-    char buffer[BUFFER];
-
-    string s = "#1;";
-    strcpy(buffer, s.c_str());
-    write(player->fd, buffer, 3);
-    memset(buffer, 0, BUFFER);
+    string message = "#1;";
     for (auto &p : *player->players_ptr) {
         if ((!p->login.empty()) && p->fd != player->fd) {
-            string message = p->login + ':';
-            strcpy(buffer, message.c_str());
-            write(player->fd, buffer, message.size());
-            memset(buffer, 0, BUFFER);
+            message = message + p->login + ":";
         }
     }
-    s = "&";
-    strcpy(buffer, s.c_str());
-    write(player->fd, buffer, 1);
+    message+=END;
+    write(player->fd, message.c_str(), message.size());
 }
 
 void funcSendUnavailable(Player *player) {
-    char buffer[5];
     string message = "#2;0&";
-    strcpy(buffer, message.c_str());
-    write(player->fd, buffer, message.size());
+    write(player->fd, message.c_str(), message.size());
 }
 
 void funcInvite(Player *player) {
-    char buffer[BUFFER];
-
     Player *opponent = getOpponent(player);
 
     if (opponent == nullptr) {
@@ -146,17 +127,13 @@ void funcInvite(Player *player) {
 
         // wysyla zaproszenie
     else {
+        char buffer[BUFFER];
         string message = "#2;1&";
-        strcpy(buffer, message.c_str());
-        write(player->fd, buffer, message.size());
-        memset(buffer, 0, BUFFER);
+        write(player->fd, message.c_str(), message.size());
 
         message.clear();
-        message.append("#3;");
-        message.append(player->login);
-        message.append("&");
-        strcpy(buffer, message.c_str());
-        write(opponent->fd, buffer, message.size());
+        message = "#3;" + player->login + END;
+        write(opponent->fd, message.c_str(), message.size());
 
         player->command.clear();
 
@@ -182,11 +159,9 @@ void funcInvite(Player *player) {
                     else if (player->command.at(1) == '4') {
                         reply = player->command.at(3);
                     }
-
                     player->command.clear();
                 }
             }
-
         }
 
         //zgodzil sie na gre
@@ -197,14 +172,11 @@ void funcInvite(Player *player) {
             pthread_mutex_unlock(&player->playerMutex);
             // start watku gry (do kolizji)
             startGame(player);
-
         }
     }
 }
 
 void funcIsInvited(Player *player) {
-    char buffer[BUFFER];
-
     int firstDelimiter = player->command.find(DELIMITER);
     int secondDelimiter = player->command.find(DELIMITER, firstDelimiter + 1);
 
@@ -227,14 +199,12 @@ void funcIsInvited(Player *player) {
             player->playing = true;
             pthread_mutex_unlock(&player->playerMutex);
             string message = "#4;1&";
-            strcpy(buffer, message.c_str());
-            write(newOpponent->fd, buffer, message.size());
+            write(newOpponent->fd, message.c_str(), message.size());
 
         } else {
             string message = "#4;0&";
-            strcpy(buffer, message.c_str());
-            write(newOpponent->fd, buffer, message.size());
-            memset(buffer, 0, BUFFER);
+            write(newOpponent->fd, message.c_str(), message.size());
+
         }
     }
 }
