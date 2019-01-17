@@ -127,10 +127,9 @@ void startGame(Game *game) {
 void *playGame(void *data) {
 
     auto *game = new Game(((struct thread_data_game*)(data))->player);
-    pthread_mutex_t *gameMutex = ((struct thread_data_game*)(data))->gameMutex;
+    pthread_mutex_t *serverMutex = ((struct thread_data_game*)(data))->serverMutex;
     pthread_detach(pthread_self());
-    pthread_mutex_unlock(((struct thread_data_game*)(data))->gameMutex);
-
+    pthread_mutex_unlock(serverMutex);
 
     char buffer[BUFFER];
     string s;
@@ -139,13 +138,13 @@ void *playGame(void *data) {
     pthread_mutex_lock(&game->player[0]->playerMutex);
     pthread_mutex_lock(&game->player[1]->playerMutex);
 
-    pthread_mutex_lock(gameMutex);
     startGame(game);
 
     pthread_mutex_unlock(&game->player[1]->playerMutex);
     pthread_mutex_unlock(&game->player[0]->playerMutex);
 
-    while (game->player[0] != nullptr && game->player[1] != nullptr && game->player[0]->playing && game->player[1]->playing) {
+    //while (game->player[0] != nullptr && game->player[1] != nullptr && game->player[0]->playing && game->player[1]->playing) {
+    do {
         memset(buffer, 0, BUFFER);
         s.clear();
 
@@ -188,12 +187,11 @@ void *playGame(void *data) {
         pthread_mutex_unlock(&game->player[0]->playerMutex);
         pthread_mutex_unlock(&game->player[1]->playerMutex);
 
-    }
+    } while (game->player[0] != nullptr && game->player[1] != nullptr && game->player[0]->playing && game->player[1]->playing);
 
     cout << "* Game over " << game->score[0] << ":" << game->score[1] << " * " << '[' << game->player[0]->fd << ", " << game->player[0]->login << "] vs ["
          << game->player[1]->fd << ", " << game->player[1]->login <<  "]\n";
 
-    pthread_mutex_t *serverMutex = game->player[0]->serverMutex;
 
     pthread_mutex_lock(serverMutex);
     pthread_mutex_lock(&game->player[0]->playerMutex);

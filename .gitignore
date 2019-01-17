@@ -1,11 +1,18 @@
+# qt
 .idea/
 Skoczki.pro.*
+*.user
 
-#cmake
-server/CMakeFiles/*
-server/CMakeCache.txt
-server/cmake_install.cmake
+# cmake
+server/cmake-build-debug
+server/CMakeFiles
+server/cmake_install\.cmake
+server/CMakeCache\.txt
 server/Makefile
 server/server
 
-*.user
+# compiled
+server/compiled
+
+
+
