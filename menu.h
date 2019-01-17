@@ -43,6 +43,8 @@ private slots:
 
     void on_ipButton_clicked();
 
+    void closeEvent(QCloseEvent *event);
+
 public slots:
     void write(int polecenie, std::string imie);
     void readData();

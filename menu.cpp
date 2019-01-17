@@ -390,7 +390,7 @@ void Menu::rozpocznijGre()
 {
     this->setVisible(false);
     this->setEnabled(false);
-    this->close();
+    //this->close();
 
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
     game->show();
@@ -414,4 +414,11 @@ void Menu::zeruj()
     odp_zamkniecie=false;
     odp_wygrana=-1;
 
+}
+
+void Menu::closeEvent(QCloseEvent *event)
+{
+    write(-1,"");
+    cout << "Wychodzenie z gry..." << endl;
+    qApp->closeAllWindows();
 }
