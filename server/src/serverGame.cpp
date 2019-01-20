@@ -22,7 +22,7 @@ void getPoint(Game *game, int player_number) {
     game->positions[abs(player_number-1)][1] = game->player[abs(player_number-1)]->position[1];
 
 
-    // nowy wynik
+    // new score
     game->score[player_number]++;
     for(int i = 0; i < 2; i++) {
         message.clear();
@@ -30,15 +30,15 @@ void getPoint(Game *game, int player_number) {
         write(game->player[i]->fd, message.c_str(), message.size());
     }
 
-//    cout << game->player[0]->login << " " << game->score[0] << " || " << game->score[1] << " " << game->player[1]->login << '\n';
 
+    // check if the game ended
     if(game->score[player_number] == MAX_POINTS) {
-        // wiadomosc do wygranego
+        // message for a winner
         message.clear();
         message = "#6;1&";
         write(game->player[player_number]->fd, message.c_str(), message.size());
 
-        // wiadomosc do przegranego
+        // message for a loser
         message.clear();
         message = "#6;0&";
         write(game->player[abs(player_number-1)]->fd, message.c_str(), message.size());
@@ -56,9 +56,9 @@ void checkCollision(Game *game, int player_number){
     opponentPos = game->player[abs(player_number-1)]->position;
     oldPlayerPos = game->positions[player_number];
 
-    // czy spada
+    // check if player is falling
     if (playerPos[1] > oldPlayerPos[1]) {
-        // czy jest kolizja
+        // check if collision happened
         if ((playerPos[0] <= opponentPos[0] + BUNNY_WIDTH) &&
             (playerPos[0] + BUNNY_WIDTH >= opponentPos[0]) &&
             (playerPos[1] <= opponentPos[1] + BUNNY_HEIGHT) &&
@@ -135,7 +135,7 @@ void *playGame(void *data) {
         pthread_mutex_lock(&game->player[1]->playerMutex);
 
 
-        //czy byl wykonany ruch przez gracza1
+        //check if player[0] made a move
         if ((game->positions[0][0] != game->player[0]->position[0]) ||
             (game->positions[0][1] != game->player[0]->position[1])) {
 
@@ -148,7 +148,7 @@ void *playGame(void *data) {
 
         }
 
-        //czy byl wykonany ruch przez gracza2
+        //check if player[1] made a move
         if ((game->positions[1][0] != game->player[1]->position[0]) ||
             (game->positions[1][1] != game->player[1]->position[1])){
 
@@ -177,4 +177,6 @@ void *playGame(void *data) {
     pthread_mutex_lock(&game->player[1]->playerMutex);
     delete game;
     pthread_mutex_unlock(serverMutex);
+
+    return 0;
 }

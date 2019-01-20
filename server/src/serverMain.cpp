@@ -21,7 +21,6 @@ int main(int argc, char* argv[]) {
     int server_fd;
 
     auto *players = new std::list<Player*>;
-    auto *games = new std::list<Game*>;
 
     int bind_result;
     int listen_result;

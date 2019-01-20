@@ -81,7 +81,7 @@ void funcLogin(Player *player) {
         }
     }
 
-    // gdy login juz istnieje
+    // when login is already used
     if (err) {
         cout << "[Login is not available] fd: " << player->fd << '\n';
         string message = "#0;0&";
@@ -125,7 +125,7 @@ void funcInvite(Player *player) {
         funcSendUnavailable(player);
     }
 
-        // wysyla zaproszenie
+        // send the invite
     else {
         char buffer[BUFFER];
         string message = "#2;1&";
@@ -137,7 +137,7 @@ void funcInvite(Player *player) {
 
         player->command.clear();
 
-        // czeka na odpowiedz
+        // wait for the reply
         char reply = '.';
         while (reply == '.') {
             memset(buffer, 0, BUFFER);
@@ -148,7 +148,7 @@ void funcInvite(Player *player) {
             if(!player->command.empty()) {
                 if (player->command.at(0) == START && player->command.at(player->command.size() - 1) == END) {
 
-                    // w miedzyczasie ktos go zaprasza
+                    // if he is invited during his wait, send inviter message about being unavailable
                     if (player->command.at(1) == '3') {
                         Player *newPlayer = getOpponent(player);
                         if(newPlayer != nullptr) {
@@ -156,6 +156,7 @@ void funcInvite(Player *player) {
                         }
                     }
 
+                    // get reply
                     else if (player->command.at(1) == '4') {
                         reply = player->command.at(3);
                     }
@@ -164,13 +165,13 @@ void funcInvite(Player *player) {
             }
         }
 
-        //zgodzil sie na gre
+        // check if it was accepted
         if (reply == '1') {
             pthread_mutex_lock(&player->playerMutex);
             player->opponent= opponent;
             player->playing = true;
             pthread_mutex_unlock(&player->playerMutex);
-            // start watku gry (do kolizji)
+            // start the game
             startGame(player);
         }
     }
@@ -191,8 +192,8 @@ void funcIsInvited(Player *player) {
     }
 
     char reply = player->command.at(secondDelimiter + 1);
-    // zgadza sie na gre
     if(newOpponent != nullptr) {
+        // if player accepted invitation
         if (reply == '1') {
             pthread_mutex_lock(&player->playerMutex);
             player->opponent = newOpponent;

@@ -7,7 +7,17 @@
 
 #include "serverConstants.h"
 
+/**
+ * Manages received messages
+ * @param player
+ */
 void getCommand(Player *player);
+
+/**
+ * Manages the player
+ * @param t_data
+ * @return
+ */
 void *playerPlays (void *t_data);
 
 
