@@ -19,6 +19,7 @@ int odp_lista=-1;
 int odp_start=-1;
 int port = 1234;
 
+//funkcja do szukania podstringów w stringu
 template<class T>
 bool isSubstring(const std::basic_string<T> &haystack, const T* needle)
 {
@@ -36,8 +37,12 @@ Menu::Menu(QWidget *parent) :
 {
     pozycjeMoje[0] = -1;
     ui->setupUi(this);
+
+    //aktywacja slotu zczytywania pobranych danych
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QIODevice::readyRead, this, &Menu::readData);
+
+    //ładowanie logo
     QMovie *movie = new QMovie(":/new/prefix1/logo.gif");
     ui->logo->setMovie(movie);
     movie->start();
@@ -63,12 +68,15 @@ void Menu::on_polaczButton_clicked()
 {
     QString ip=ui->ipText->text();
     int kropki = count(ip.begin(),ip.end(),'.');
+
+    //weryfikacja IP
     if(kropki!=3)
     {
         QMessageBox::information(this,"Błąd", "Proszę podać prawidłowy adres IP!");
     }
     else
     {
+        //weryfikacja czy podano po IP port
         if(isSubstring(ip.toStdString(),":"))
         {
 
@@ -77,15 +85,11 @@ void Menu::on_polaczButton_clicked()
             ip=qlist[0];
         }
         tcpSocket->connectToHost(ip, port);
-//        int waiting=0;
-//        do
-//        {
-            qApp->processEvents();
-//            waiting++;
-//        }
-//        while(waiting<50);
-        //cout << "Nawiązano połączenie" << nawiazano << endl;
 
+        //poczekaj na połączenie
+        qApp->processEvents();
+
+        //weryfikacja poprawności imienia
         imie=ui->imieText->text().toStdString();
         if(imie=="")
         {
@@ -97,6 +101,8 @@ void Menu::on_polaczButton_clicked()
         }
         else
         {
+
+            //weryfikacja płci króliczej
             if(ui->plecM->isChecked()==false && ui->plecK->isChecked()==false)
                 QMessageBox::information(this,"Błąd", "Proszę wybrać płeć królika!");
             else
@@ -104,8 +110,10 @@ void Menu::on_polaczButton_clicked()
                 if (ui->plecK->isChecked()==true)
                     plec="K";
 
+                //sprawdzanie czy nazwa jest dozwolona
                 write(0,imie);
 
+                //czekaj na odpowiedź
                 do
                 {
                     qApp->processEvents();
@@ -118,6 +126,7 @@ void Menu::on_polaczButton_clicked()
                 }
                 else
                 {
+                    //jeśli nazwa jest dostępna to zablokuj wcześniejsze okna i odblokuj listę graczy
                     ui->polaczButton->setEnabled(false);
                     ui->imieText->setEnabled(false);
                     ui->plecM->setEnabled(false);
@@ -145,6 +154,8 @@ void Menu::on_listaGraczy_clicked(const QModelIndex &index)
 void Menu::on_dolaczButton_clicked()
 {
     przeciwnik=ui->listaGraczy->currentItem()->text();
+
+    //sprawdź czy wybrany królik jest wolny
     write(2,przeciwnik.toStdString());
     do
     {
@@ -152,10 +163,12 @@ void Menu::on_dolaczButton_clicked()
     }
     while(odp_czy_wolny==-1);
 
+
     if(odp_czy_wolny==0)
         QMessageBox::information(this,"Informacja", "Królik "  + przeciwnik + " skacze teraz z kimś innym. Wybierz innego gracza");
     else if(odp_czy_wolny==1)
     {
+        //jeśli królik wolny to wyślij zaproszenie
         do
         {
             qApp->processEvents();
@@ -167,10 +180,7 @@ void Menu::on_dolaczButton_clicked()
         }
         else if(odp_zaproszenie==1)
         {
-
-            //QMessageBox::information(this,"Informacja", przeciwnik + " przyjął zaproszenie. Kliknij OK by rozpocząć.");
             rozpocznijGre();
-
         }
     }
     odp_czy_wolny=-1;
@@ -180,10 +190,10 @@ void Menu::on_dolaczButton_clicked()
 
 void Menu::wyslij(string temp)
 {
+    //wysłanie wiadomości na serwer jako ciąg charów
     char * komunikat = new char[temp.size() + 1];
     copy(temp.begin(), temp.end(), komunikat);
     komunikat[temp.size()] = '\0';
-    //qInfo() << komunikat << endl;
     tcpSocket->write(komunikat);
     delete[] komunikat;
 
@@ -192,6 +202,7 @@ void Menu::wyslij(string temp)
 void Menu::write(int polecenie, string nick)
 {
     odp_start=1;
+    //jeśli serwer jest dostępny to wyślij któryś z otrzymanych komunikatów
     if(tcpSocket->state() == QAbstractSocket::ConnectedState) {
         switch(polecenie)
         {
@@ -220,6 +231,10 @@ QByteArray Menu::scalanie()
     string komunikat="";
     int usun=0;
     bool zapisuj=false, poprawny=false;
+
+    //funkcja znajduje znak początkowy # i przepisuje pojedyncze znaki do momentu aż do znalezienia znaku końcowego &,
+    //jeśli nie znajdzie to funkcja zwraca pusty komunikat, w przeciwnym razie zwraca komunikat oraz wycina z dlugiego_tekstu
+    //(czyli wszystkiego co zostało odebrane) wszystkie znaki aż do znalezionego &
     for(int i=0; i<dlugi_tekst.size(); i++)
     {
         if(dlugi_tekst[i]=='&' && zapisuj == true)
@@ -238,7 +253,7 @@ QByteArray Menu::scalanie()
     if(poprawny==true)
     {
         dlugi_tekst.erase(0,usun);
-//        cout << "Komunikat: " << komunikat << endl;
+        //        cout << "Komunikat: " << komunikat << endl;
         poprawny=false;
     }
     else
@@ -251,22 +266,33 @@ QByteArray Menu::scalanie()
 void Menu::readData()
 {
      QByteArray komunikat;
+
+     //dopóki komunikat nie jest pusty wykonuj operacje
      do
      {
          komunikat ="";
+
+         //odbierz 10 znaków
          QByteArray temp = tcpSocket->read(10);
+
+         //dodaj do jednego długiego ciągu
          dlugi_tekst+=temp.toStdString();
 //         cout << dlugi_tekst << '\n';
 
+         //wyszukaj komunikat
          komunikat = scalanie();
+
          if(komunikat!="")
          {
              QList<QByteArray> qlist = komunikat.split(';');
 
+             //podziel wiadomość na numer komunikatu i treść
              int numer = qlist[0].toInt();
              QByteArray tresc = qlist[1];
+             //w zależności od otrzymanego numeru wykonaj odpowiednie instrukcje
              switch(numer)
              {
+                 //zamknij planszę gdy przeciwnik się rozłączy
                  case -1:
                  {
                      QMessageBox::information(this,"Informacja", "Przeciwnik rozłączył się");
@@ -278,22 +304,26 @@ void Menu::readData()
                      this->setEnabled(true);
                      break;
                  }
+                 //sprawdź zajętość nicku
                  case 0:
                 {
                      (tresc=="0") ? odp_polaczono=0 : odp_polaczono=1;
                      break;
                 }
+                 //wyświetl listę graczy
                 case 1:
                 {
                      lista_graczy = tresc;
                      odp_lista=0;
                      break;
                 }
+                 //sprawdź czy królik jest wolny
                 case 2:
                 {
                     (tresc=="0") ? odp_czy_wolny=0 : odp_czy_wolny=1;
                     break;
                 }
+                 //zareaguj na otrzymane zaproszenie
                 case 3:
                 {
                      QMessageBox::StandardButton reply;
@@ -301,15 +331,18 @@ void Menu::readData()
                                                    QMessageBox::Yes|QMessageBox::No);
                      if (reply == QMessageBox::Yes) {
                          przeciwnik=tresc;
+                         //wyslij zgodę na grę
                          write(3,string(tresc+";1"));
                          cout << "Challange accepted" <<endl;
                          rozpocznijGre();
                      } else {
+                         //nie zgódź się na wspólną grę
                          write(3,string(tresc+";0"));
                          cout << ":(" << endl;
                      }
                      break;
                 }
+                 //zobacz czy przeciwnik się zgodził
                 case 4:
                 {
                     //qInfo() << "4";
@@ -324,11 +357,13 @@ void Menu::readData()
                     }
                     break;
                 }
+                 //zapisz do zmiennej inf o zakończonej grze
                  case 6:
                  {
                      odp_wygrana=qlist[1].toInt();
                      break;
                  }
+                 //odbierz wynik
                  case 7:
                  {
         //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
@@ -336,6 +371,7 @@ void Menu::readData()
                     wynik_2 = qlist[2].toInt();
                     break;
                  }
+                 //odbierz moją pozycję
                  case 8:
                  {
         //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
@@ -343,7 +379,7 @@ void Menu::readData()
                     pozycjeMoje[1] = qlist[2].toInt();
                     break;
                  }
-
+                 //odbierz pozycję przeciwnika
                  case 9:
                  {
     //                qInfo() << "9 " << qlist[1] << " " << qlist[2];
@@ -365,6 +401,7 @@ void Menu::readData()
 
 void Menu::on_odswiezButton_clicked()
 {
+    //wyślij prośbę o listę graczy
     write(1,imie);
     do
     {
@@ -374,6 +411,8 @@ void Menu::on_odswiezButton_clicked()
 
     ui->listaGraczy->clear();
     qInfo() << lista_graczy << "///" << lista_graczy.size();
+
+    //wyświetl listę jeśli jest ktoś jeszcze
     if(lista_graczy.size() > 0)
     {
         QList<QByteArray> lista_graczy_podzielona=lista_graczy.split(':');
@@ -389,10 +428,11 @@ void Menu::on_odswiezButton_clicked()
 
 void Menu::rozpocznijGre()
 {
+    //ukryj menu
     this->setVisible(false);
     this->setEnabled(false);
-    //this->close();
 
+    //stwórz nową grę
     game = new MainWindow(QString::fromStdString(plec), QString::fromStdString(imie), przeciwnik, this);
     game->show();
 }
@@ -406,12 +446,13 @@ void Menu::on_ipButton_clicked()
 
 void Menu::zeruj()
 {
+    //czysczenie danych rozgrywki
     pozycjeDrugiego[0]=0;
     pozycjeDrugiego[1]=0;
     pozycjeMoje[0]=0;
     pozycjeMoje[1]=0;
     wynik_1=0, wynik_2=0;
-    //delete game;
+
     odp_zamkniecie=false;
     odp_wygrana=-1;
 

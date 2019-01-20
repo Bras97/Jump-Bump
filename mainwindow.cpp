@@ -39,7 +39,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //tcpSocket = new QTcpSocket(this);
+    //ustawienie timera wykonującego funkcję ruchu co 40ms
     timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(ruch()));
     timer->start(40);
@@ -48,6 +48,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     menu = qobject_cast<Menu *>(parent);
     this->setFixedSize(this->size());
 
+    //wprowadzenie pozycji bloków do tablicy
     bloki[0] = ui->block_1;
     bloki[1] = ui->block_2;
     bloki[2] = ui->block_3;
@@ -66,6 +67,7 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     bloki[15] = ui->block_16;
     bloki[16] = ui->block_17;
 
+    //domyślnie nie wykonuj żadnego ruchu
     for(int i=0; i<3; i++)
         polecenie[i]=false;
     polecenie[3]=true; //spadaj caly czas jak nie masz gruntu
@@ -100,6 +102,8 @@ MainWindow::MainWindow(const QString &plec, const QString &imie, const QString &
     //nadanie imion
     ui->name_1->setText(imie);
     ui->name_2->setText(przeciwnik);
+
+    //reset pozycji
     for(int i=0; i<4; i++)
         poz2[i]=0;
 }
@@ -110,7 +114,7 @@ MainWindow::~MainWindow()
 }
 
 
-
+//sprawdza czy królik nie uderzył w któryś z bloków
 bool MainWindow::kolizja(int poz0, int poz1,int poz2,int poz3)
 {
     for(int i=0; i<ILE_BLOKOW; i++)
@@ -125,20 +129,6 @@ bool MainWindow::kolizja(int poz0, int poz1,int poz2,int poz3)
     return false;
 }
 
-//bool MainWindow::zderzenie(int poz0, int poz1,int poz2,int poz3, int pozd0, int pozd1,int pozd2,int pozd3)
-//{
-//    for(int i=0; i<ILE_BLOKOW; i++)
-//    {
-//        if( ( poz0 <= pozd1 ) && ( poz1 >= pozd0 ) &&
-//            ( poz2 <= pozd3 ) && ( poz3 >= pozd2 ) )
-//        {
-//            if(poz3<=pozd3-15 && poz1>=pozd0+10 && poz0<=pozd1-10)
-//                return true;
-//        }
-//    }
-//    return false;
-//}
-
 void delay()
 {
     QTime dieTime= QTime::currentTime().addSecs(3);
@@ -148,11 +138,13 @@ void delay()
 
 void MainWindow::koniec_gry(QString napis)
 {
+    //Przez 3 sekundy wyświetla komunikat końcowy
     ui->game_over->setVisible(1);
     string napis_koncowy = string("WYGRYWA: ");
     ui->game_over->setText( QString::fromStdString(napis_koncowy) + napis);
     delay();
-    //timer->stop();
+
+    //czyszczenie i powrót do menu
     delete timer;
     menu->setVisible(true);
     menu->setEnabled(true);
@@ -166,6 +158,7 @@ void MainWindow::ruch()
     if((ui->player_1->x()>750) || (ui->player_1->x()<0) || (ui->player_1->y()>500))
             ui->player_1->setGeometry(0,0,ui->player_1->width(),ui->player_1->height());
 
+    //odbiór pozycji z serwera
     if(menu->pozycjeMoje[0] >= 0) {
         poz[0] = menu->pozycjeMoje[0];
         poz[2] = menu->pozycjeMoje[1];
@@ -175,6 +168,7 @@ void MainWindow::ruch()
         poz[0]=ui->player_1->x(); //lewo
         poz[2]=ui->player_1->y(); //góra
     }
+    //wprowadzenie pozycji pozostałych bloków obrazka z królikiem
     poz[1]=poz[0] + ui->player_1->width(); //prawo
     poz[3]=poz[2] + ui->player_1->height(); //dół
 
@@ -191,13 +185,16 @@ void MainWindow::ruch()
             ui->player_2->setPixmap(rabbit2_l2);
         else ui->player_2->setPixmap(rabbit2_l1);
     }
+
+    //pozycja drugiego królika
     poz2[0] = menu->pozycjeDrugiego[0];
     poz2[1]= poz2[0]  + ui->player_2->width(); //prawo
     poz2[2] = menu->pozycjeDrugiego[1];
     poz2[3]= poz2[2] + ui->player_2->height(); //dół
-    //ui->player_2->setStyleSheet("border-image: url(:/new/prefix1/rabbit2_icon_r1.png");
+
     //qInfo() << poz[0] << " " << poz[2] << " || " << poz2[0] << " " << poz2[2];
 
+    //zmiana pozycji na mapie
     ui->player_1->setGeometry(poz[0],poz[2],ui->player_1->width(),ui->player_1->height());
     ui->player_2->setGeometry(poz2[0],poz2[2],ui->player_2->width(),ui->player_2->height());
 
@@ -206,8 +203,10 @@ void MainWindow::ruch()
     //lewo
     if(polecenie[0]==true)
     {
+        //czy nie wychodzi poza mapę
         if(!(poz[0]-PREDKOSC <= 0))
         {
+            //jeśli po wykonaniu ruchu nie wpadnie na blok to zmień obrazek królika
             if(!kolizja(poz[0]-PREDKOSC-1, poz[1]-PREDKOSC-1, poz[2], poz[3]))
             {
                 if (ui->player_1->pixmap()->toImage() == rabbit_l1.toImage())
@@ -217,13 +216,16 @@ void MainWindow::ruch()
             }
             else
                 ui->player_1->setGeometry(bloki[ktory]->x()+bloki[ktory]->width()+1,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
+                //zrównaj krawędź królika z krawędzią bloku
         }
     }
     //prawo
     if(polecenie[1]==true)
     {
+        //czy nie wychodzi poza mapę
         if(!(poz[1]+PREDKOSC >= ui->background->width()))
         {
+            //jeśli po wykonaniu ruchu nie wpadnie na blok to zmień obrazek królika
             if(!kolizja(poz[0]+PREDKOSC+1, poz[1]+PREDKOSC+1, poz[2], poz[3]))
             {
                 if (ui->player_1->pixmap()->toImage() == rabbit_r1.toImage())
@@ -233,13 +235,14 @@ void MainWindow::ruch()
             }
             else
                 ui->player_1->setGeometry(bloki[ktory]->x()-ui->player_1->width()-1,ui->player_1->y(),ui->player_1->width(),ui->player_1->height());
+                //zrównaj krawędź królika z krawędzią bloku
         }
     }
     //skok
     if(polecenie[2]==true)
     {
         wgore=16-skok;
-
+        //sprawdzanie kolizji z blokiem
         if(kolizja(poz[0], poz[1], poz[2]-wgore, poz[3]-wgore))
         {
            skok=16;
@@ -247,6 +250,7 @@ void MainWindow::ruch()
         }
         else ui->player_1->setGeometry(ui->player_1->x(),ui->player_1->y()-wgore,ui->player_1->width(),ui->player_1->height());
 
+        //skacz do pewnego pułapu
         if(skok<16) skok++;
         else
         {
@@ -255,24 +259,12 @@ void MainWindow::ruch()
             polecenie[3]=true;
         }
     }
+
     //spadanie
     if(polecenie[3]==true)
     {
-//        if(zderzenie(poz[0], poz[1], poz[2], poz[3], poz2[0], poz2[1], poz2[2], poz2[3]))
-//        {
-//            wynik1++;
-//            if (wynik1<10)
-//                w = "0" + to_string(wynik1);
-//            else
-//                w = to_string(wynik1);
-//            ui->score_1->setText(QString::fromStdString(w));
-//            if (wynik1>=LIMIT_GRY)
-//            {
-//                QString napis = ui->name_1->text();
-//                koniec_gry(napis);
-//            }
-//        }
-         if(zbity==false)
+        //jeśli nie dostał sygnału że został zbity to spada
+        if(zbity==false)
         {
             skok++;
             if(kolizja(poz[0], poz[1], poz[2]+skok, poz[3]+skok))
@@ -288,26 +280,10 @@ void MainWindow::ruch()
             }
         }
     }
-    //jesli sygnal ze zostalem zbity
-    if(zbity==true)
-    {
-        ile_zgonow++;
-        if (ile_zgonow<10)
-            w = "0" + to_string(ile_zgonow);
-        else
-            w = to_string(ile_zgonow);
-        ui->score_2->setText(QString::fromStdString(w));
-        if(ile_zgonow>=LIMIT_GRY)
-        {
-            QString napis = ui->name_2->text();
-            koniec_gry(napis);
-        }
-        srand(time(NULL));
-        int spawn= rand() % 8;
-        ui->player_1->setGeometry(respawn[spawn][0],respawn[spawn][1],ui->player_1->width(),ui->player_1->height());
-        zbity=false;
-    }
+    //potrzebne do ominięcia jednej iteracji spadania
+    if(zbity==true) zbity=false;
 
+    //przesylanie wyniku
     string pozycje = to_string(poz[0]) + ';' + to_string(poz[2]);
     ui->score_1->setText(QString::fromStdString(to_string(menu->wynik_1)));
     ui->score_2->setText(QString::fromStdString(to_string(menu->wynik_2)));
@@ -316,13 +292,11 @@ void MainWindow::ruch()
     //czy wygrana
     if(menu->odp_wygrana==0)
     {
-//        ui->score_2->setText(QString::number(ui->score_2->text().toInt()+1));
         QString napis = ui->name_2->text();
         koniec_gry(napis);
     }
     else if(menu->odp_wygrana==1)
     {
-//       ui->score_1->setText(QString::number(ui->score_1->text().toInt()+1));
        QString napis = ui->name_1->text();
        koniec_gry(napis);
     }
@@ -330,6 +304,7 @@ void MainWindow::ruch()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    //jeden ma wyłączyć wszytko(ten co wyszedł) a drugi ma wrócić do menu
     if(menu->odp_zamkniecie==false)
     {
         menu->write(-1,"");
@@ -339,7 +314,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-
+//odblokowywanie odpowiednich ruchów
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Left)
